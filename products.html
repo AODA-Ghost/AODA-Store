@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos - AODA Store | T-Shirts Oficiais</title>
+    <meta name="description" content="Explora a coleção completa de t-shirts oficiais da AODA. Filtra por cor, estilo e tamanho.">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries (anime.js carregado apenas nas páginas que o utilizam) -->
+
+    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS — em produção, substituir pelo build local: npx tailwindcss -o tailwind.min.css -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'warm-white': '#FEFCF8',
+                        'oat': '#F5F1E8',
+                        'fog-gray': '#E8E5E0',
+                        'charcoal': '#2C2C2C',
+                        'sage': '#A8B5A0'
+                    },
+                    fontFamily: {
+                        'display': ['Playfair Display', 'serif'],
+                        'body': ['DM Sans', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+        <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="resources/favicon.svg">
+        <!-- Substituir estas 2 linhas pelas 2 linhas abaixo -->
+    <script src="main.js" defer></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, #FEFCF8 0%, #F5F1E8 100%);
+            color: #2C2C2C;
+            line-height: 1.6;
+        }
+        
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(254, 252, 248, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        .nav-link:hover { color: #A8B5A0; }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #A8B5A0;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after { width: 100%; }
+        
+        .cart-counter {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #A8B5A0;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .cart-counter.pulse {
+            animation: pulse 0.6s ease-in-out;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        .page-header {
+            padding: 8rem 0 4rem;
+            text-align: center;
+            background: linear-gradient(135deg, #F5F1E8 0%, #E8E5E0 100%);
+        }
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            color: #2C2C2C;
+        }
+        .page-subtitle {
+            font-size: 1.1rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 3rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+        
+        .filters-sidebar {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+        .filters-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            color: #2C2C2C;
+        }
+        .filter-group { margin-bottom: 2rem; }
+        .filter-label {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: block;
+            color: #2C2C2C;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .filter-options { display: flex; flex-direction: column; gap: 0.5rem; }
+        .filter-option { display: flex; align-items: center; gap: 0.75rem; }
+        .filter-checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #E8E5E0;
+            border-radius: 4px;
+            appearance: none;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        .filter-checkbox:checked {
+            background: #A8B5A0;
+            border-color: #A8B5A0;
+        }
+        .filter-checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .filter-text {
+            font-size: 0.9rem;
+            color: #555;
+            cursor: pointer;
+        }
+        
+        .price-range { margin-top: 1rem; }
+        .price-slider {
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: #E8E5E0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        .price-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #A8B5A0;
+            cursor: pointer;
+        }
+        .price-display {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .clear-filters {
+            background: none;
+            border: 1px solid #A8B5A0;
+            color: #A8B5A0;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        .clear-filters:hover {
+            background: #A8B5A0;
+            color: white;
+        }
+        
+        .products-grid{ min-height: 600px; }
+        .products-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .results-counter { color: #666; font-size: 0.9rem; }
+        .sort-select {
+            padding: 0.5rem 1rem;
+            border: 1px solid #E8E5E0;
+            border-radius: 8px;
+            background: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        .search-bar {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #E8E5E0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border-color 0.3s ease;
+        }
+        .search-bar:focus {
+            outline: none;
+            border-color: #A8B5A0;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        .product-card.animate-in {
+            opacity: 1;
+            transform: translateY(0);
+            animation: slideUp 0.5s ease-out forwards;
+        }
+        @keyframes slideUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .product-image {
+            position: relative;
+            aspect-ratio: 1;
+            overflow: hidden;
+        }
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        .product-card:hover .product-image img { transform: scale(1.05); }
+        .product-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(168, 181, 160, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .product-card:hover .product-overlay { opacity: 1; }
+        .quick-view-btn {
+            background: white;
+            color: #A8B5A0;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .quick-view-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .product-info { padding: 1.5rem; }
+        .product-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .product-color {
+            color: #666;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .product-price {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #A8B5A0;
+            margin-bottom: 1rem;
+        }
+        .product-features {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        .feature-tag {
+            background: #F5F1E8;
+            color: #666;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+        .product-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+        .size-select {
+            padding: 0.5rem;
+            border: 1px solid #E8E5E0;
+            border-radius: 6px;
+            background: white;
+            font-size: 0.85rem;
+            flex: 1;
+        }
+        .add-to-cart-btn {
+            background: #A8B5A0;
+            color: white;
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+        .add-to-cart-btn:hover {
+            background: #96a388;
+            transform: translateY(-1px);
+        }
+        
+        /* Modal */
+        .product-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .product-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+        }
+        .modal-content {
+            position: relative;
+            background: white;
+            border-radius: 20px;
+            max-width: 900px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            padding: 2rem;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .product-modal.active .modal-content { transform: scale(1); }
+        .modal-close {
+            position: absolute;
+            top: 1rem; right: 1rem;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            transition: all 0.2s ease;
+        }
+        .modal-close:hover { background: white; transform: scale(1.1); }
+        .modal-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        .modal-details h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .modal-color { color: #666; margin-bottom: 1rem; }
+        .modal-price {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #A8B5A0;
+            margin-bottom: 1.5rem;
+        }
+        .modal-description {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        .modal-features {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        .modal-size-select {
+            padding: 0.75rem;
+            border: 1px solid #E8E5E0;
+            border-radius: 8px;
+            background: white;
+            font-size: 1rem;
+        }
+        .modal-add-to-cart {
+            background: #A8B5A0;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        .modal-add-to-cart:hover {
+            background: #96a388;
+            transform: translateY(-1px);
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            grid-column: 1 / -1;
+        }
+        .loading-spinner {
+            width: 40px; height: 40px;
+            border: 3px solid #E8E5E0;
+            border-top: 3px solid #A8B5A0;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 1024px) {
+            .main-content { grid-template-columns: 1fr; gap: 2rem; }
+            .filters-sidebar { position: static; }
+            .modal-content { grid-template-columns: 1fr; gap: 1rem; }
+        }
+        @media (max-width: 768px) {
+            .page-title { font-size: 2.5rem; }
+            .products-header { flex-direction: column; gap: 1rem; align-items: stretch; }
+            .products-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; }
+            .product-actions { flex-direction: column; align-items: stretch; }
+        }
+        .footer { background:#1a1a1a; color:white; padding:3rem 0; }
+.footer-grid { max-width:1200px; margin:0 auto; padding:0 2rem; display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:3rem; }
+.footer-col a:hover { color:#A8B5A0; }
+@media(max-width:768px) { .footer-grid { grid-template-columns:1fr 1fr; } }
+@media(max-width:480px) { .footer-grid { grid-template-columns:1fr; } }
+/* ========== MOBILE MENU ========== */
+.mobile-menu-backdrop {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 1500;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.35s ease;
+}
+.mobile-menu-backdrop.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.mobile-menu {
+    position: fixed;
+    top: 0; right: 0;
+    width: 300px;
+    max-width: 85vw;
+    height: 100%;
+    background: #FEFCF8;
+    z-index: 1600;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.mobile-menu-backdrop.open + .mobile-menu,
+.mobile-menu.open {
+    transform: translateX(0);
+}
+
+.mobile-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #E8E5E0;
+}
+
+.mobile-menu-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: #2C2C2C;
+    text-decoration: none;
+}
+
+.mobile-menu-close {
+    background: none;
+    border: none;
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: #666;
+}
+
+.mobile-menu-close:hover {
+    background: #F5F1E8;
+    color: #2C2C2C;
+}
+
+.mobile-menu-links {
+    flex: 1;
+    padding: 1.5rem 0;
+}
+
+.mobile-menu-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    color: #2C2C2C;
+    text-decoration: none;
+    font-size: 1.05rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.mobile-menu-link:hover,
+.mobile-menu-link.active {
+    color: #A8B5A0;
+    background: rgba(168, 181, 160, 0.06);
+}
+
+.mobile-menu-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 3px; height: 24px;
+    background: #A8B5A0;
+    border-radius: 0 3px 3px 0;
+}
+
+.mobile-menu-link svg {
+    width: 18px; height: 18px;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    flex-shrink: 0;
+}
+
+.mobile-menu-cart-badge {
+    background: #A8B5A0;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.1rem 0.45rem;
+    border-radius: 10px;
+    margin-left: 0.5rem;
+}
+
+.mobile-menu-divider {
+    height: 1px;
+    background: #E8E5E0;
+    margin: 0.5rem 1.5rem;
+}
+
+.mobile-menu-legal {
+    padding: 1.5rem;
+    border-top: 1px solid #E8E5E0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.25rem;
+}
+
+.mobile-menu-legal a {
+    font-size: 0.8rem;
+    color: #999;
+    text-decoration: none;
+    padding: 0.4rem 0;
+    transition: color 0.2s;
+}
+
+.mobile-menu-legal a:hover {
+    color: #A8B5A0;
+}
+
+/* Animação dos links ao abrir */
+.mobile-menu.open .mobile-menu-links .mobile-menu-link {
+    opacity: 0;
+    transform: translateX(20px);
+    animation: mobileLinkIn 0.3s ease forwards;
+}
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(1) { animation-delay: 0.1s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(2) { animation-delay: 0.15s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(3) { animation-delay: 0.2s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(4) { animation-delay: 0.25s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(5) { animation-delay: 0.3s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(6) { animation-delay: 0.35s; }
+
+@keyframes mobileLinkIn {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@media (min-width: 768px) {
+    .mobile-menu-backdrop,
+    .mobile-menu {
+        display: none !important;
+    }
+}
+    </style>
+        <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-2xl font-display font-medium text-charcoal" style="text-decoration:none;color:#2C2C2C;">AODA Store</a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="index.html" class="nav-link text-charcoal hover:text-sage px-3 py-2 text-sm font-medium">Início</a>
+                        <a href="products.html" class="nav-link text-sage px-3 py-2 text-sm font-medium">Produtos</a>
+                        <a href="index.html#story" class="nav-link text-charcoal hover:text-sage px-3 py-2 text-sm font-medium">Sobre Nós</a>
+                        <a href="cart.html" class="nav-link text-charcoal hover:text-sage px-3 py-2 text-sm font-medium relative">
+                            Carrinho
+                            <span class="cart-counter" style="display: none;">0</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button class="text-charcoal hover:text-sage">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+        <!-- Mobile Menu -->
+    <div class="mobile-menu-backdrop" id="mobileBackdrop"></div>
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <a href="index.html" class="mobile-menu-brand">AODA Store</a>
+            <button class="mobile-menu-close" id="mobileClose" aria-label="Fechar menu">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="mobile-menu-links">
+            <a href="index.html" class="mobile-menu-link" data-page="index">
+                Início
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </a>
+            <a href="products.html" class="mobile-menu-link" data-page="products">
+                Produtos
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            </a>
+            <a href="about.html" class="mobile-menu-link" data-page="about">
+                Sobre Nós
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </a>
+            <a href="contact.html" class="mobile-menu-link" data-page="contact">
+                Contacto
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </a>
+            <a href="faq.html" class="mobile-menu-link" data-page="faq">
+                FAQ
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </a>
+            <div class="mobile-menu-divider"></div>
+            <a href="cart.html" class="mobile-menu-link" data-page="cart">
+                Carrinho
+                <span style="display:flex;align-items:center;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;stroke:currentColor;stroke-width:1.5;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                    <span class="mobile-menu-cart-badge" id="mobileCartBadge">0</span>
+                </span>
+            </a>
+        </div>
+        <div class="mobile-menu-legal">
+            <a href="privacy.html">Privacidade</a>
+            <a href="terms.html">Termos</a>
+            <a href="returns.html">Devoluções</a>
+            <a href="about.html">A Marca</a>
+        </div>
+    </div>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container mx-auto px-4">
+            <h1 class="page-title">Nossa Coleção</h1>
+            <p class="page-subtitle">Descobre o equilíbrio perfeito entre conforto e estilo urbano na nossa seleção cuidada de t-shirts oficiais AODA.</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Filters Sidebar -->
+        <aside class="filters-sidebar">
+            <h2 class="filters-title">Filtros</h2>
+            
+            <div class="filter-group">
+                <label class="filter-label">Pesquisar</label>
+                <input type="text" class="search-bar search-input" placeholder="Pesquisar produtos...">
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Estilo</label>
+                <div class="filter-options">
+                    <div class="filter-option">
+                        <input type="checkbox" class="filter-checkbox" data-filter-type="style" value="Casual" id="casual">
+                        <label class="filter-text" for="casual">Casual</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" class="filter-checkbox" data-filter-type="style" value="Urban" id="urban">
+                        <label class="filter-text" for="urban">Urban</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" class="filter-checkbox" data-filter-type="style" value="Desportivo" id="desportivo">
+                        <label class="filter-text" for="desportivo">Desportivo</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" class="filter-checkbox" data-filter-type="style" value="Premium" id="premium">
+                        <label class="filter-text" for="premium">Premium</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Cor</label>
+                <div class="filter-options">
+                    <div class="filter-option">
+                        <input type="checkbox" class="filter-checkbox" data-filter-type="color" value="Preto" id="preto">
+                        <label class="filter-text" for="preto">Preto</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" class="filter-checkbox" data-filter-type="color" value="Branco" id="branco">
+                        <label class="filter-text" for="branco">Branco</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" class="filter-checkbox" data-filter-type="color" value="Cinza" id="cinza">
+                        <label class="filter-text" for="cinza">Cinza</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" class="filter-checkbox" data-filter-type="color" value="Verde" id="verde">
+                        <label class="filter-text" for="verde">Verde</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" class="filter-checkbox" data-filter-type="color" value="Azul" id="azul">
+                        <label class="filter-text" for="azul">Azul</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" class="filter-checkbox" data-filter-type="color" value="Vermelho" id="vermelho">
+                        <label class="filter-text" for="vermelho">Vermelho</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Faixa de Preço</label>
+                <div class="price-range">
+                    <input type="range" class="price-slider price-range-slider" min="0" max="50000" value="50000" step="1000">
+                    <div class="price-display">
+                        <span>0 Kz</span>
+                        <span class="max-price">50.000 Kz</span>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="clear-filters" onclick="app.clearAllFilters()">Limpar Todos os Filtros</button>
+        </aside>
+
+        <!-- Products Area -->
+        <main class="products-area">
+            <div class="products-header">
+                <p class="results-counter">12 produtos encontrados</p>
+                <select class="sort-select" onchange="app.handleSort(this.value)">
+                    <option value="name">Ordenar por Nome</option>
+                    <option value="price-low">Preço: Menor para Maior</option>
+                    <option value="price-high">Preço: Maior para Menor</option>
+                    <option value="newest">Mais Recentes</option>
+                </select>
+            </div>
+
+            <div class="products-grid">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+                        <div class="products-grid" id="productsGrid">
+                        <!-- Skeleton: mostrado antes dos produtos carregarem -->
+                        <div id="productsSkeleton"></div>
+                    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+    <div class="footer-grid">
+        <div class="footer-brand">
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:0.75rem;">AODA Store</h3>
+            <p style="color:#999;font-size:0.9rem;">T-shirts oficiais com design exclusivo, qualidade premium e orgulho angolano.</p>
+        </div>
+        <div class="footer-col">
+            <h4 style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;color:#999;margin-bottom:1rem;">Loja</h4>
+            <a href="products.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Produtos</a>
+            <a href="cart.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Carrinho</a>
+            <a href="faq.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Perguntas Frequentes</a>
+        </div>
+        <div class="footer-col">
+            <h4 style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;color:#999;margin-bottom:1rem;">A Marca</h4>
+            <a href="about.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Sobre Nós</a>
+            <a href="contact.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Contacto</a>
+        </div>
+        <div class="footer-col">
+            <h4 style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;color:#999;margin-bottom:1rem;">Legal</h4>
+            <a href="privacy.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Privacidade</a>
+            <a href="terms.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Termos e Condições</a>
+            <a href="returns.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Devoluções</a>
+        </div>
+    </div>
+    <div style="max-width:1200px;margin:2rem auto 0;padding:1.5rem 2rem 0;border-top:1px solid #333;text-align:center;color:#666;font-size:0.85rem;">
+        &copy; 2026 AODA Store. Todos os direitos reservados.
+    </div>
+</footer>
+
+    <!-- JavaScript -->
+    <script>
+        window.addEventListener('scroll', function() {
+            var navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(254, 252, 248, 0.98)';
+                navbar.style.boxShadow = '0 2px 20px rgba(0,0,0,0.1)';
+            } else {
+                navbar.style.background = 'rgba(254, 252, 248, 0.95)';
+                navbar.style.boxShadow = 'none';
+            }
+        });
+    </script>
+        <script src="firebase-config.js"></script>
+    <script src="auth-service.js"></script>
+    <script src="app-backend.js"></script>
+        <script src="shared-ux.js"></script>
+    <script>
+        // Inicializar UX quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            SharedUX.initImageFallbacks();
+        });
+    </script>
+        <script>
+        // Breadcrumbs dos produtos
+        document.addEventListener('DOMContentLoaded', function() {
+            SharedUX.renderBreadcrumbs([
+                { label: 'Início', url: 'index.html' },
+                { label: 'Produtos', isCurrent: true }
+            ]);
+        });
+    </script>
+    <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("./sw.js");}</script>
+</body>
+</html>

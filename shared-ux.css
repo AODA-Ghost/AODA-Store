@@ -1,0 +1,266 @@
+/* ==========================================
+   SKELETON LOADING
+   ========================================== */
+
+.skeleton {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(90deg, #f0ede6 25%, #f5f1e8 50%, #f0ede6 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+    border-radius: inherit;
+}
+
+.skeleton::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255,255,255,0.5);
+}
+
+@keyframes skeleton-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Skeleton: Card de produto */
+.skeleton-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.skeleton-image {
+    aspect-ratio: 1;
+    background: #E8E5E0;
+}
+
+.skeleton-text {
+    height: 16px;
+    border-radius: 4px;
+    background: #E8E5E0;
+    margin-bottom: 8px;
+}
+
+.skeleton-text.short { width: 60%; }
+.skeleton-text.medium { width: 80%; }
+.skeleton-text.long { width: 100%; }
+.skeleton-text.price {
+    width: 35%;
+    height: 20px;
+    border-radius: 4px;
+    background: #E8E5E0;
+    margin-top: 4px;
+}
+
+.skeleton-lines {
+    padding: 1.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.skeleton-button {
+    height: 44px;
+    border-radius: 8px;
+    background: #E8E5E0;
+    margin-top: 8px;
+}
+
+/* Skeleton: Item do carrinho */
+.skeleton-cart-item {
+    display: grid;
+    grid-template-columns: 100px 1fr auto;
+    gap: 1.5rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid #f5f5f5;
+    align-items: center;
+}
+
+.skeleton-cart-thumb {
+    width: 100px;
+    height: 100px;
+    border-radius: 10px;
+    background: #E8E5E0;
+}
+
+.skeleton-cart-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Skeleton: Resumo */
+.skeleton-totals {
+    padding: 2rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.skeleton-total-row {
+    height: 14px;
+    background: #E8E5E0;
+    border-radius: 4px;
+}
+
+.skeleton-total-row.short { width: 50%; }
+.skeleton-total-row.long { width: 70%; }
+
+/* Skeleton: Breadcrumbs */
+.skeleton-breadcrumb {
+    height: 14px;
+    width: 200px;
+    background: #E8E5E0;
+    border-radius: 4px;
+    margin: 0 auto 2rem;
+}
+
+/* Skeleton: Input do admin */
+.skeleton-input {
+    height: 44px;
+    background: #E8E5E0;
+    border-radius: 10px;
+}
+
+/* Skeleton: Tabela */
+.skeleton-table-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr 1fr 1fr;
+    gap: 12px;
+    padding: 16px 0;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.skeleton-cell {
+    height: 14px;
+    background: #E8E5E0;
+    border-radius: 4px;
+}
+
+
+/* ==========================================
+   BREADCRUMBS
+   ========================================== */
+
+.breadcrumbs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 2rem 2rem 0;
+    font-size: 0.85rem;
+    flex-wrap: wrap;
+}
+
+.breadcrumb-item {
+    color: #999;
+    text-decoration: none;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.breadcrumb-item:hover {
+    color: #A8B5A0;
+}
+
+.breadcrumb-separator {
+    margin: 0 0.6rem;
+    color: #ccc;
+    font-size: 0.75rem;
+    user-select: none;
+}
+
+.breadcrumb-current {
+    color: #2C2C2C;
+    font-weight: 500;
+}
+
+/* Breadcrumb com breadcrumb separator SVG */
+.breadcrumb-sep {
+    display: inline-flex;
+    margin: 0 0.5rem;
+    color: #ccc;
+    font-size: 0.8rem;
+}
+
+
+/* ==========================================
+   IMAGE FALLBACK
+   ========================================== */
+
+/* Placeholder padrão quando imagem não carrega */
+.img-fallback {
+    background: linear-gradient(135deg, #f0ede6 0%, #e8e5e0 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #bbb;
+    font-size: 0.75rem;
+    text-align: center;
+    padding: 1rem;
+    min-height: 100px;
+}
+
+.img-fallback svg {
+    width: 32px;
+    height: 32px;
+    stroke: #ccc;
+    fill: none;
+    stroke-width: 1.5;
+    margin-bottom: 0.5rem;
+    opacity: 0.6;
+}
+
+/* Overlay de erro sobre imagens que falharam */
+.img-error-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.img-error-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, #f0ede6 0%, #e8e5e0 100%);
+    z-index: 1;
+    opacity: 0.9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #bbb;
+    font-size: 0.75rem;
+    text-align: center;
+    padding: 1rem;
+    gap: 0.5rem;
+}
+
+.img-error-wrapper img {
+    position: relative;
+    z-index: 0;
+    opacity: 0.3;
+    filter: blur(2px) grayscale(100%);
+}
+
+
+/* ==========================================
+   FAVICON
+   ========================================== */
+
+/* O favicon real é servido por <link> no <head> de cada página */
+/* Este CSS é apenas fallback se o link não carregar */
+
+@media (prefers-reduced-motion: reduce) {
+    .skeleton { animation: none; }
+    .skeleton::after { display: none; }
+}

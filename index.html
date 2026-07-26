@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AODA Store | T-Shirts Oficiais da AODA</title>
+    <meta name="description" content="Descubra as t-shirts oficiais da AODA. Qualidade premium, conforto e design exclusivo.">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS — em produção, substituir pelo build local: npx tailwindcss -o tailwind.min.css -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'warm-white': '#FEFCF8',
+                        'oat': '#F5F1E8',
+                        'fog-gray': '#E8E5E0',
+                        'charcoal': '#2C2C2C',
+                        'sage': '#A8B5A0'
+                    },
+                    fontFamily: {
+                        'display': ['Playfair Display', 'serif'],
+                        'body': ['DM Sans', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+        <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="resources/favicon.svg">
+        <!-- Substituir estas 2 linhas pelas 2 linhas abaixo -->
+    <script src="main.js" defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, #FEFCF8 0%, #F5F1E8 100%);
+            color: #2C2C2C;
+            line-height: 1.6;
+        }
+        
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(254, 252, 248, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        .nav-link:hover { color: #A8B5A0; }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #A8B5A0;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after { width: 100%; }
+        
+        .cart-counter {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #A8B5A0;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .cart-counter.pulse { animation: pulse 0.6s ease-in-out; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: linear-gradient(135deg, #FEFCF8 0%, #F5F1E8 50%, #E8E5E0 100%);
+        }
+        .hero-bg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: url('resources/hero_urban.jpg');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.3;
+            z-index: 1;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 800px;
+            padding: 0 2rem;
+        }
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 300;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #2C2C2C 0%, #A8B5A0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: #666;
+            margin-bottom: 2rem;
+            font-weight: 300;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: #A8B5A0;
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .cta-button:hover {
+            background: #96a388;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(168, 181, 160, 0.3);
+        }
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        .cta-button:hover::before { left: 100%; }
+        
+        /* Featured Products */
+        .featured-section {
+            padding: 8rem 0;
+            background: #FEFCF8;
+        }
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 4rem;
+            color: #2C2C2C;
+        }
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        .product-card.animate-in {
+            opacity: 1;
+            transform: translateY(0);
+            animation: slideUp 0.6s ease-out forwards;
+        }
+        @keyframes slideUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .product-image {
+            position: relative;
+            aspect-ratio: 1;
+            overflow: hidden;
+        }
+        .product-image img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        .product-card:hover .product-image img { transform: scale(1.05); }
+        .product-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(168, 181, 160, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .product-card:hover .product-overlay { opacity: 1; }
+        .quick-view-btn {
+            background: white;
+            color: #A8B5A0;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .quick-view-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .product-info { padding: 2rem; }
+        .product-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .product-color { color: #666; margin-bottom: 0.5rem; }
+        .product-price {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #A8B5A0;
+            margin-bottom: 1.5rem;
+        }
+        .product-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        .size-select {
+            padding: 0.5rem;
+            border: 1px solid #E8E5E0;
+            border-radius: 8px;
+            background: white;
+            font-size: 0.9rem;
+        }
+        .add-to-cart-btn {
+            flex: 1;
+            background: #A8B5A0;
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .add-to-cart-btn:hover {
+            background: #96a388;
+            transform: translateY(-1px);
+        }
+        
+        /* ===== MODAL (criado pelo main.js) ===== */
+        .product-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .product-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+        }
+        .modal-content {
+            position: relative;
+            background: white;
+            border-radius: 20px;
+            max-width: 900px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            padding: 2rem;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .product-modal.active .modal-content { transform: scale(1); }
+        .modal-close {
+            position: absolute;
+            top: 1rem; right: 1rem;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            transition: all 0.2s ease;
+        }
+        .modal-close:hover { background: white; transform: scale(1.1); }
+        .modal-image img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        .modal-details h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .modal-color { color: #666; margin-bottom: 1rem; }
+        .modal-price {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #A8B5A0;
+            margin-bottom: 1.5rem;
+        }
+        .modal-description {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        .modal-features {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        .modal-size-select {
+            padding: 0.75rem;
+            border: 1px solid #E8E5E0;
+            border-radius: 8px;
+            background: white;
+            font-size: 1rem;
+        }
+        .modal-add-to-cart {
+            background: #A8B5A0;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        .modal-add-to-cart:hover {
+            background: #96a388;
+            transform: translateY(-1px);
+        }
+        .feature-tag {
+            background: #F5F1E8;
+            color: #666;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+        
+        /* Brand Story Section */
+        .brand-story {
+            padding: 8rem 0;
+            background: linear-gradient(135deg, #F5F1E8 0%, #E8E5E0 100%);
+        }
+        .story-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            text-align: center;
+        }
+        .story-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: #2C2C2C;
+        }
+        .story-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 3rem;
+        }
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+        .benefit-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .benefit-card:hover { transform: translateY(-5px); }
+        .benefit-icon {
+            width: 60px; height: 60px;
+            background: #A8B5A0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+        }
+        .benefit-icon svg { width: 28px; height: 28px; fill: white; }
+        .benefit-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .benefit-desc { color: #666; font-size: 0.9rem; }
+        
+        /* Newsletter Section */
+        .newsletter {
+            padding: 6rem 0;
+            background: #2C2C2C;
+            color: white;
+            text-align: center;
+        }
+        .newsletter-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        .newsletter-form {
+            max-width: 500px;
+            margin: 2rem auto 0;
+            display: flex;
+            gap: 1rem;
+        }
+        .newsletter-input {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .newsletter-btn {
+            background: #A8B5A0;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .newsletter-btn:hover { background: #96a388; }
+        
+        /* Footer */
+        .footer { background:#1a1a1a; color:white; padding:3rem 0; }
+.footer-grid { max-width:1200px; margin:0 auto; padding:0 2rem; display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:3rem; }
+.footer-col a:hover { color:#A8B5A0; }
+@media(max-width:768px) { .footer-grid { grid-template-columns:1fr 1fr; } }
+@media(max-width:480px) { .footer-grid { grid-template-columns:1fr; } }
+        
+        /* Animations */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+        .animate-on-scroll.animate-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2.5rem; }
+            .products-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 2rem;
+            }
+            .newsletter-form { flex-direction: column; }
+            .product-actions { flex-direction: column; align-items: stretch; }
+            .modal-content { grid-template-columns: 1fr; gap: 1rem; }
+        }
+        /* ========== MOBILE MENU ========== */
+.mobile-menu-backdrop {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 1500;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.35s ease;
+}
+.mobile-menu-backdrop.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.mobile-menu {
+    position: fixed;
+    top: 0; right: 0;
+    width: 300px;
+    max-width: 85vw;
+    height: 100%;
+    background: #FEFCF8;
+    z-index: 1600;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.mobile-menu-backdrop.open + .mobile-menu,
+.mobile-menu.open {
+    transform: translateX(0);
+}
+
+.mobile-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #E8E5E0;
+}
+
+.mobile-menu-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: #2C2C2C;
+    text-decoration: none;
+}
+
+.mobile-menu-close {
+    background: none;
+    border: none;
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: #666;
+}
+
+.mobile-menu-close:hover {
+    background: #F5F1E8;
+    color: #2C2C2C;
+}
+
+.mobile-menu-links {
+    flex: 1;
+    padding: 1.5rem 0;
+}
+
+.mobile-menu-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    color: #2C2C2C;
+    text-decoration: none;
+    font-size: 1.05rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.mobile-menu-link:hover,
+.mobile-menu-link.active {
+    color: #A8B5A0;
+    background: rgba(168, 181, 160, 0.06);
+}
+
+.mobile-menu-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 3px; height: 24px;
+    background: #A8B5A0;
+    border-radius: 0 3px 3px 0;
+}
+
+.mobile-menu-link svg {
+    width: 18px; height: 18px;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    flex-shrink: 0;
+}
+
+.mobile-menu-cart-badge {
+    background: #A8B5A0;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.1rem 0.45rem;
+    border-radius: 10px;
+    margin-left: 0.5rem;
+}
+
+.mobile-menu-divider {
+    height: 1px;
+    background: #E8E5E0;
+    margin: 0.5rem 1.5rem;
+}
+
+.mobile-menu-legal {
+    padding: 1.5rem;
+    border-top: 1px solid #E8E5E0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.25rem;
+}
+
+.mobile-menu-legal a {
+    font-size: 0.8rem;
+    color: #999;
+    text-decoration: none;
+    padding: 0.4rem 0;
+    transition: color 0.2s;
+}
+
+.mobile-menu-legal a:hover {
+    color: #A8B5A0;
+}
+
+/* Animação dos links ao abrir */
+.mobile-menu.open .mobile-menu-links .mobile-menu-link {
+    opacity: 0;
+    transform: translateX(20px);
+    animation: mobileLinkIn 0.3s ease forwards;
+}
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(1) { animation-delay: 0.1s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(2) { animation-delay: 0.15s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(3) { animation-delay: 0.2s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(4) { animation-delay: 0.25s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(5) { animation-delay: 0.3s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(6) { animation-delay: 0.35s; }
+
+@keyframes mobileLinkIn {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@media (min-width: 768px) {
+    .mobile-menu-backdrop,
+    .mobile-menu {
+        display: none !important;
+    }
+}
+    </style>
+        <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-2xl font-display font-medium text-charcoal" style="text-decoration:none;color:#2C2C2C;">AODA Store</a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="index.html" class="nav-link text-sage px-3 py-2 text-sm font-medium">Início</a>
+                        <a href="products.html" class="nav-link text-charcoal hover:text-sage px-3 py-2 text-sm font-medium">Produtos</a>
+                        <a href="#story" class="nav-link text-charcoal hover:text-sage px-3 py-2 text-sm font-medium">Sobre Nós</a>
+                        <a href="cart.html" class="nav-link text-charcoal hover:text-sage px-3 py-2 text-sm font-medium relative">
+                            Carrinho
+                            <span class="cart-counter" style="display: none;">0</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button class="text-charcoal hover:text-sage">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+        <!-- Mobile Menu -->
+    <div class="mobile-menu-backdrop" id="mobileBackdrop"></div>
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <a href="index.html" class="mobile-menu-brand">AODA Store</a>
+            <button class="mobile-menu-close" id="mobileClose" aria-label="Fechar menu">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="mobile-menu-links">
+            <a href="index.html" class="mobile-menu-link" data-page="index">
+                Início
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </a>
+            <a href="products.html" class="mobile-menu-link" data-page="products">
+                Produtos
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            </a>
+            <a href="about.html" class="mobile-menu-link" data-page="about">
+                Sobre Nós
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </a>
+            <a href="contact.html" class="mobile-menu-link" data-page="contact">
+                Contacto
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </a>
+            <a href="faq.html" class="mobile-menu-link" data-page="faq">
+                FAQ
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </a>
+            <div class="mobile-menu-divider"></div>
+            <a href="cart.html" class="mobile-menu-link" data-page="cart">
+                Carrinho
+                <span style="display:flex;align-items:center;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;stroke:currentColor;stroke-width:1.5;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                    <span class="mobile-menu-cart-badge" id="mobileCartBadge">0</span>
+                </span>
+            </a>
+        </div>
+        <div class="mobile-menu-legal">
+            <a href="privacy.html">Privacidade</a>
+            <a href="terms.html">Termos</a>
+            <a href="returns.html">Devoluções</a>
+            <a href="about.html">A Marca</a>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-content animate-on-scroll">
+            <h1 class="hero-title">Vista a Identidade AODA</h1>
+            <p class="hero-subtitle">Descubra o perfeito equilíbrio entre conforto, sustentabilidade e estilo com nossas t-shirts oficiais. Onde os materiais mais finos da natureza encontram a vida urbana moderna.</p>
+            <a href="products.html" class="cta-button">Explorar Coleção</a>
+        </div>
+    </section>
+
+    <!-- Featured Products — preenchidos pelo main.js -->
+    <section class="featured-section">
+        <div class="container mx-auto">
+            <h2 class="section-title animate-on-scroll">Coleção em Destaque</h2>
+            <div class="products-grid" id="featuredGrid">
+                <!-- O main.js injeta aqui os 6 produtos em destaque -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Brand Story -->
+    <section id="story" class="brand-story">
+        <div class="story-content animate-on-scroll">
+            <h2 class="story-title">A História da AODA</h2>
+            <p class="story-text">
+                A AODA nasceu da paixão pela criatividade, inovação e identidade visual.
+                Mais do que uma marca de vestuário, queremos criar peças que representem
+                atitude, personalidade e estilo para quem procura destacar-se.
+            </p>
+            <p class="story-text">
+                Cada t-shirt é produzida com materiais de elevada qualidade, proporcionando
+                conforto, resistência e um acabamento premium. A nossa missão é oferecer
+                produtos modernos, exclusivos e desenvolvidos com atenção a cada detalhe.
+            </p>
+            <div class="benefits-grid">
+                <div class="benefit-card animate-on-scroll">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                    </div>
+                    <h3 class="benefit-title">Conforto Premium</h3>
+                    <p class="benefit-desc">Tecido macio e confortável para o uso diário, oferecendo uma excelente sensação ao vestir.</p>
+                </div>
+                <div class="benefit-card animate-on-scroll">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                    </div>
+                    <h3 class="benefit-title">Tecido Respirável</h3>
+                    <p class="benefit-desc">Material leve e respirável que proporciona maior conforto durante todo o dia.</p>
+                </div>
+                <div class="benefit-card animate-on-scroll">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+                    </div>
+                    <h3 class="benefit-title">Alta Durabilidade</h3>
+                    <p class="benefit-desc">Produzidas com materiais resistentes para manter a qualidade e o estilo por muito mais tempo.</p>
+                </div>
+                <div class="benefit-card animate-on-scroll">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+                    </div>
+                    <h3 class="benefit-title">Qualidade Garantida</h3>
+                    <p class="benefit-desc">Cada peça passa por um rigoroso controlo de qualidade para garantir um produto premium.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="newsletter">
+        <div class="container mx-auto px-4">
+            <h2 class="newsletter-title animate-on-scroll">Junta-te à Comunidade AODA</h2>
+            <p class="animate-on-scroll">Recebe novidades, promoções e lançamentos exclusivos da AODA Store.</p>
+            <form class="newsletter-form animate-on-scroll" onsubmit="handleNewsletter(event)">
+                <input type="email" class="newsletter-input" placeholder="Digite o seu e-mail" required>
+                <button type="submit" class="newsletter-btn">Subscrever</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+   <footer class="footer">
+    <div class="footer-grid">
+        <div class="footer-brand">
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:0.75rem;">AODA Store</h3>
+            <p style="color:#999;font-size:0.9rem;">T-shirts oficiais com design exclusivo, qualidade premium e orgulho angolano.</p>
+        </div>
+        <div class="footer-col">
+            <h4 style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;color:#999;margin-bottom:1rem;">Loja</h4>
+            <a href="products.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Produtos</a>
+            <a href="cart.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Carrinho</a>
+            <a href="faq.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Perguntas Frequentes</a>
+        </div>
+        <div class="footer-col">
+            <h4 style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;color:#999;margin-bottom:1rem;">A Marca</h4>
+            <a href="about.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Sobre Nós</a>
+            <a href="contact.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Contacto</a>
+        </div>
+        <div class="footer-col">
+            <h4 style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;color:#999;margin-bottom:1rem;">Legal</h4>
+            <a href="privacy.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Privacidade</a>
+            <a href="terms.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Termos e Condições</a>
+            <a href="returns.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Devoluções</a>
+        </div>
+    </div>
+    <div style="max-width:1200px;margin:2rem auto 0;padding:1.5rem 2rem 0;border-top:1px solid #333;text-align:center;color:#666;font-size:0.85rem;">
+        &copy; 2026 AODA Store. Todos os direitos reservados.
+    </div>
+</footer>
+
+    <!-- Fonte única: dados, carrinho, modal, toast, animações -->
+    
+    <script>
+
+                function handleNewsletter(event) {
+            event.preventDefault();
+            var email = event.target.querySelector('input').value;
+            var button = event.target.querySelector('button');
+
+            // Guardar no Firebase
+            if (typeof AodaBackend !== 'undefined') {
+                AodaBackend.subscribeEmail(email).then(function(result) {
+                    if (result === 'already_subscribed') {
+                        button.textContent = 'Já Subscrito!';
+                    } else if (result === 'success') {
+                        button.textContent = 'Subscrito!';
+                    } else {
+                        button.textContent = 'Subscrito!';
+                    }
+                    button.style.background = '#7a8b6e';
+                    setTimeout(function() {
+                        button.textContent = 'Subscrever';
+                        button.style.background = '#A8B5A0';
+                        event.target.reset();
+                    }, 2000);
+                });
+            } else {
+                // Fallback se Firebase não carregar
+                button.textContent = 'Subscrito!';
+                button.style.background = '#7a8b6e';
+                setTimeout(function() {
+                    button.textContent = 'Subscrever';
+                    button.style.background = '#A8B5A0';
+                    event.target.reset();
+                }, 2000);
+            }
+
+            anime({
+                targets: button,
+                scale: [1, 0.95, 1],
+                duration: 200
+            });
+        }
+
+        document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                var target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        window.addEventListener('scroll', function() {
+            var navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(254, 252, 248, 0.98)';
+                navbar.style.boxShadow = '0 2px 20px rgba(0,0,0,0.1)';
+            } else {
+                navbar.style.background = 'rgba(254, 252, 248, 0.95)';
+                navbar.style.boxShadow = 'none';
+            }
+        });
+    </script>
+        <script src="firebase-config.js"></script>
+    <script src="app-backend.js"></script>
+        <script src="shared-ux.js"></script>
+    <script>
+        // Inicializar UX quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            SharedUX.initImageFallbacks();
+        });
+    </script>
+        <script>
+        // Breadcrumbs na home (só mostra o "Início" como atual)
+        document.addEventListener('DOMContentLoaded', function() {
+            SharedUX.renderBreadcrumbs([
+                { label: 'Início', isCurrent: true }
+            ]);
+        });
+    </script>
+    <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("./sw.js");}</script>
+</body>
+</html>

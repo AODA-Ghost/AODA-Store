@@ -1,0 +1,106 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() { return request.auth != null; }
+    function isAdmin() { return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'; }
+
+    // PRODUTOS
+    match /products/{id} {
+      allow read: if true;
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
+        // Exceção restrita: o checkout (mesmo sem sessão) pode reservar
+        // stock ao finalizar uma compra — só pode alterar o campo "stock",
+        // só para um número inteiro >= 0, e só para diminuir o valor atual.
+        // Nunca pode alterar preço, nome, imagens ou qualquer outro campo.
+        || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock'])
+            && request.resource.data.stock is int
+            && request.resource.data.stock >= 0
+            && request.resource.data.stock < resource.data.stock);
+    }
+
+    // ENCOMENDAS
+    match /orders/{id} {
+      allow create: if request.resource.data.userId == request.auth.uid || request.resource.data.userId == null;
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow update, delete: if isAdmin();
+    }
+
+    // UTILIZADORES
+    match /users/{uid} {
+      allow read: if isAuthenticated() && (uid == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && uid == request.auth.uid && !('role' in request.resource.data);
+      allow update: if isAdmin();  // Admin pode alterar roles
+    }
+
+    // PAGAMENTOS
+    match /payments/{id} { allow read, write: if false; }
+
+    // NEWSLETTER
+    match /newsletter/{id} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // CATEGORIAS
+    match /categories/{id} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // MARCAS
+    match /brands/{id} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // CUPÕES
+    match /coupons/{id} {
+      allow read: if true;
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
+        // Exceção restrita: ao usar um cupão no checkout, o cliente pode
+        // apenas incrementar "usedCount" em exatamente 1 — nada mais.
+        || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usedCount'])
+            && request.resource.data.usedCount == resource.data.usedCount + 1);
+    }
+
+    // AVALIAÇÕES
+    match /reviews/{id} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin();
+    }
+
+    // CONTACTOS
+    match /contacts/{id} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // BANNERS
+    match /banners/{id} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // CONFIGURAÇÕES
+    match /settings/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin();
+    }
+
+    // LOGS
+    match /logs/{id} {
+      allow read, write: if isAdmin();
+    }
+
+    // NOTIFICAÇÕES
+    match /notifications/{id} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+  }
+}

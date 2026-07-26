@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrinho - AODA Store | T-Shirts Oficiais</title>
+    <meta name="description" content="Revisa os teus produtos selecionados e finaliza a compra. Envio grátis em encomendas acima de 15.000 Kz.">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS — em produção, substituir pelo build local: npx tailwindcss -o tailwind.min.css -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'warm-white': '#FEFCF8',
+                        'oat': '#F5F1E8',
+                        'fog-gray': '#E8E5E0',
+                        'charcoal': '#2C2C2C',
+                        'sage': '#A8B5A0'
+                    },
+                    fontFamily: {
+                        'display': ['Playfair Display', 'serif'],
+                        'body': ['DM Sans', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+        <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="resources/favicon.svg">
+        <!-- Substituir estas 2 linhas pelas 2 linhas abaixo -->
+    <script src="main.js" defer></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, #FEFCF8 0%, #F5F1E8 100%);
+            color: #2C2C2C;
+            line-height: 1.6;
+        }
+        
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(254, 252, 248, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        .nav-link:hover { color: #A8B5A0; }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px; left: 0;
+            width: 0; height: 2px;
+            background: #A8B5A0;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after { width: 100%; }
+        
+        .cart-counter {
+            position: absolute;
+            top: -8px; right: -8px;
+            background: #A8B5A0;
+            color: white;
+            border-radius: 50%;
+            width: 20px; height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .cart-counter.pulse { animation: pulse 0.6s ease-in-out; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        .page-header {
+            padding: 8rem 0 4rem;
+            text-align: center;
+            background: linear-gradient(135deg, #F5F1E8 0%, #E8E5E0 100%);
+        }
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            color: #2C2C2C;
+        }
+        .page-subtitle {
+            font-size: 1.1rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 4rem;
+        }
+        
+        .cart-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
+            margin-bottom: 2rem;
+            color: #2C2C2C;
+        }
+        .cart-items { min-height: 200px; }
+        
+        .cart-item {
+            display: grid;
+            grid-template-columns: 100px 1fr auto;
+            gap: 1.5rem;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid #E8E5E0;
+            align-items: center;
+        }
+        .cart-item:last-child { border-bottom: none; }
+        .cart-item-image {
+            width: 100px; height: 100px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        .cart-item-details h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .cart-item-details p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        .cart-item-details .price {
+            font-weight: 600;
+            color: #A8B5A0;
+            font-size: 1rem;
+        }
+        .cart-item-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: #F5F1E8;
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+        .quantity-controls button {
+            background: #A8B5A0;
+            color: white;
+            border: none;
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        .quantity-controls button:hover {
+            background: #96a388;
+            transform: scale(1.1);
+        }
+        .quantity-controls span {
+            font-weight: 600;
+            min-width: 20px;
+            text-align: center;
+        }
+        .remove-item {
+            background: none;
+            border: 1px solid #ff6b6b;
+            color: #ff6b6b;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+        .remove-item:hover {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .empty-cart {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+        .empty-cart p {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        .continue-shopping-btn {
+            display: inline-block;
+            background: #A8B5A0;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .continue-shopping-btn:hover {
+            background: #96a388;
+            transform: translateY(-2px);
+        }
+        
+        .cart-summary {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+        .summary-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #2C2C2C;
+        }
+        .cart-totals { margin-bottom: 2rem; }
+        .totals-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+        .totals-row.total {
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-top: 1px solid #E8E5E0;
+            padding-top: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .promo-code { margin-bottom: 2rem; }
+        .promo-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #E8E5E0;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+        }
+        .promo-input:focus {
+            outline: none;
+            border-color: #A8B5A0;
+        }
+        .apply-promo-btn {
+            width: 100%;
+            background: #F5F1E8;
+            color: #666;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        .apply-promo-btn:hover {
+            background: #A8B5A0;
+            color: white;
+        }
+        
+        .checkout-btn {
+            width: 100%;
+            background: #A8B5A0;
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+        .checkout-btn:hover {
+            background: #96a388;
+            transform: translateY(-1px);
+        }
+        .checkout-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .trust-badges {
+            text-align: center;
+            padding-top: 1rem;
+            border-top: 1px solid #E8E5E0;
+        }
+        .trust-text {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        .trust-icons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: #A8B5A0;
+        }
+        
+        /* Recommendations */
+        .recommendations {
+            margin-top: 4rem;
+            padding: 3rem 0;
+            background: linear-gradient(135deg, #F5F1E8 0%, #E8E5E0 100%);
+        }
+        .recommendations-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: #2C2C2C;
+        }
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        .recommendation-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .recommendation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .recommendation-image {
+            aspect-ratio: 1;
+            overflow: hidden;
+        }
+        .recommendation-image img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        .recommendation-card:hover .recommendation-image img { transform: scale(1.05); }
+        .recommendation-info { padding: 1.5rem; }
+        .recommendation-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .recommendation-price {
+            font-weight: 600;
+            color: #A8B5A0;
+            margin-bottom: 1rem;
+        }
+        .add-to-cart-small {
+            background: #A8B5A0;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .add-to-cart-small:hover { background: #96a388; }
+        
+        /* Success Modal */
+        .success-backdrop {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .success-backdrop.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .success-message {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 420px;
+            width: 90%;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .success-backdrop.show .success-message { transform: scale(1); }
+        .success-icon {
+            width: 60px; height: 60px;
+            background: #A8B5A0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+        .success-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .success-text {
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        .success-btn {
+            background: #A8B5A0;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        .success-btn:hover { background: #96a388; }
+        
+        @media (max-width: 1024px) {
+            .main-content { grid-template-columns: 1fr; gap: 2rem; }
+            .cart-summary { position: static; }
+        }
+        @media (max-width: 768px) {
+            .page-title { font-size: 2.5rem; }
+            .cart-item {
+                grid-template-columns: 80px 1fr;
+                gap: 1rem;
+            }
+            .cart-item-controls {
+                grid-column: 1 / -1;
+                flex-direction: row;
+                justify-content: space-between;
+                margin-top: 1rem;
+            }
+            .cart-item-image { width: 80px; height: 80px; }
+            .recommendations-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1.5rem;
+            }
+        }
+        .footer { background:#1a1a1a; color:white; padding:3rem 0; }
+.footer-grid { max-width:1200px; margin:0 auto; padding:0 2rem; display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:3rem; }
+.footer-col a:hover { color:#A8B5A0; }
+@media(max-width:768px) { .footer-grid { grid-template-columns:1fr 1fr; } }
+@media(max-width:480px) { .footer-grid { grid-template-columns:1fr; } }
+/* ========== MOBILE MENU ========== */
+.mobile-menu-backdrop {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 1500;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.35s ease;
+}
+.mobile-menu-backdrop.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.mobile-menu {
+    position: fixed;
+    top: 0; right: 0;
+    width: 300px;
+    max-width: 85vw;
+    height: 100%;
+    background: #FEFCF8;
+    z-index: 1600;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.mobile-menu-backdrop.open + .mobile-menu,
+.mobile-menu.open {
+    transform: translateX(0);
+}
+
+.mobile-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #E8E5E0;
+}
+
+.mobile-menu-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: #2C2C2C;
+    text-decoration: none;
+}
+
+.mobile-menu-close {
+    background: none;
+    border: none;
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: #666;
+}
+
+.mobile-menu-close:hover {
+    background: #F5F1E8;
+    color: #2C2C2C;
+}
+
+.mobile-menu-links {
+    flex: 1;
+    padding: 1.5rem 0;
+}
+
+.mobile-menu-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    color: #2C2C2C;
+    text-decoration: none;
+    font-size: 1.05rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.mobile-menu-link:hover,
+.mobile-menu-link.active {
+    color: #A8B5A0;
+    background: rgba(168, 181, 160, 0.06);
+}
+
+.mobile-menu-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 3px; height: 24px;
+    background: #A8B5A0;
+    border-radius: 0 3px 3px 0;
+}
+
+.mobile-menu-link svg {
+    width: 18px; height: 18px;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    flex-shrink: 0;
+}
+
+.mobile-menu-cart-badge {
+    background: #A8B5A0;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.1rem 0.45rem;
+    border-radius: 10px;
+    margin-left: 0.5rem;
+}
+
+.mobile-menu-divider {
+    height: 1px;
+    background: #E8E5E0;
+    margin: 0.5rem 1.5rem;
+}
+
+.mobile-menu-legal {
+    padding: 1.5rem;
+    border-top: 1px solid #E8E5E0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.25rem;
+}
+
+.mobile-menu-legal a {
+    font-size: 0.8rem;
+    color: #999;
+    text-decoration: none;
+    padding: 0.4rem 0;
+    transition: color 0.2s;
+}
+
+.mobile-menu-legal a:hover {
+    color: #A8B5A0;
+}
+
+/* Animação dos links ao abrir */
+.mobile-menu.open .mobile-menu-links .mobile-menu-link {
+    opacity: 0;
+    transform: translateX(20px);
+    animation: mobileLinkIn 0.3s ease forwards;
+}
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(1) { animation-delay: 0.1s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(2) { animation-delay: 0.15s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(3) { animation-delay: 0.2s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(4) { animation-delay: 0.25s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(5) { animation-delay: 0.3s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(6) { animation-delay: 0.35s; }
+
+@keyframes mobileLinkIn {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@media (min-width: 768px) {
+    .mobile-menu-backdrop,
+    .mobile-menu {
+        display: none !important;
+    }
+}
+    </style>
+        <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-2xl font-display font-medium text-charcoal" style="text-decoration:none;color:#2C2C2C;">AODA Store</a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="index.html" class="nav-link text-charcoal hover:text-sage px-3 py-2 text-sm font-medium">Início</a>
+                        <a href="products.html" class="nav-link text-charcoal hover:text-sage px-3 py-2 text-sm font-medium">Produtos</a>
+                        <a href="index.html#story" class="nav-link text-charcoal hover:text-sage px-3 py-2 text-sm font-medium">Sobre Nós</a>
+                        <a href="cart.html" class="nav-link text-sage px-3 py-2 text-sm font-medium relative">
+                            Carrinho
+                            <span class="cart-counter" style="display: none;">0</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button class="text-charcoal hover:text-sage">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+        <!-- Mobile Menu -->
+    <div class="mobile-menu-backdrop" id="mobileBackdrop"></div>
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <a href="index.html" class="mobile-menu-brand">AODA Store</a>
+            <button class="mobile-menu-close" id="mobileClose" aria-label="Fechar menu">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="mobile-menu-links">
+            <a href="index.html" class="mobile-menu-link" data-page="index">
+                Início
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </a>
+            <a href="products.html" class="mobile-menu-link" data-page="products">
+                Produtos
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            </a>
+            <a href="about.html" class="mobile-menu-link" data-page="about">
+                Sobre Nós
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </a>
+            <a href="contact.html" class="mobile-menu-link" data-page="contact">
+                Contacto
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </a>
+            <a href="faq.html" class="mobile-menu-link" data-page="faq">
+                FAQ
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </a>
+            <div class="mobile-menu-divider"></div>
+            <a href="cart.html" class="mobile-menu-link" data-page="cart">
+                Carrinho
+                <span style="display:flex;align-items:center;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;stroke:currentColor;stroke-width:1.5;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                    <span class="mobile-menu-cart-badge" id="mobileCartBadge">0</span>
+                </span>
+            </a>
+        </div>
+        <div class="mobile-menu-legal">
+            <a href="privacy.html">Privacidade</a>
+            <a href="terms.html">Termos</a>
+            <a href="returns.html">Devoluções</a>
+            <a href="about.html">A Marca</a>
+        </div>
+    </div>
+                <div class="cart-items" id="cartItems">
+                    <!-- Skeleton: mostrado antes do carrinho carregar -->
+                    <div id="cartSkeleton"></div>
+                </div>
+                                <div class="cart-totals" id="cartTotals">
+                    <!-- Skeleton: mostrado antes dos totais carregarem -->
+                    <div id="totalsSkeleton"></div>
+                </div>
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container mx-auto px-4">
+            <h1 class="page-title">Carrinho de Compras</h1>
+            <p class="page-subtitle">Revisa os teus produtos selecionados e finaliza a compra. Envio grátis em encomendas acima de 15.000 Kz.</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <section class="cart-section">
+            <h2 class="section-title">Os Teus Produtos</h2>
+            <div class="cart-items">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+        </section>
+
+        <aside class="cart-summary">
+            <h2 class="summary-title">Resumo do Pedido</h2>
+            
+            <div class="cart-totals"></div>
+            
+            <div class="promo-code">
+                <input type="text" class="promo-input" placeholder="Código promocional" id="promoCode">
+                <button class="apply-promo-btn" onclick="applyPromoCode()">Aplicar Código</button>
+            </div>
+            
+            <button class="checkout-btn" onclick="proceedToCheckout()" id="checkoutBtn">
+                Finalizar Compra
+            </button>
+            
+            <div class="trust-badges">
+                <p class="trust-text">Pagamento seguro com encriptação SSL</p>
+                <div class="trust-icons">
+                    <span>Seguro</span>
+                    <span>Envio Grátis</span>
+                    <span>Devoluções Fáceis</span>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Recommendations -->
+    <section class="recommendations">
+        <div class="container mx-auto px-4">
+            <h2 class="recommendations-title">Também Podes Gostar</h2>
+            <div class="recommendations-grid">
+                <div class="recommendation-card">
+                    <div class="recommendation-image">
+                        <img src="resources/product-4.jpg" alt="AODA Minimal">
+                    </div>
+                    <div class="recommendation-info">
+                        <h3 class="recommendation-name">AODA Minimal</h3>
+                        <p class="recommendation-price">20.000 Kz</p>
+                        <button class="add-to-cart-small" onclick="app.addToCart(4, 'G')">Adicionar ao Carrinho</button>
+                    </div>
+                </div>
+                <div class="recommendation-card">
+                    <div class="recommendation-image">
+                        <img src="resources/product-6.jpg" alt="AODA Limited">
+                    </div>
+                    <div class="recommendation-info">
+                        <h3 class="recommendation-name">AODA Limited</h3>
+                        <p class="recommendation-price">40.000 Kz</p>
+                        <button class="add-to-cart-small" onclick="app.addToCart(6, 'G')">Adicionar ao Carrinho</button>
+                    </div>
+                </div>
+                <div class="recommendation-card">
+                    <div class="recommendation-image">
+                        <img src="resources/product-8.jpg" alt="AODA Fluxo">
+                    </div>
+                    <div class="recommendation-info">
+                        <h3 class="recommendation-name">AODA Fluxo</h3>
+                        <p class="recommendation-price">16.000 Kz</p>
+                        <button class="add-to-cart-small" onclick="app.addToCart(8, 'G')">Adicionar ao Carrinho</button>
+                    </div>
+                </div>
+                <div class="recommendation-card">
+                    <div class="recommendation-image">
+                        <img src="resources/product-10.jpg" alt="AODA Street">
+                    </div>
+                    <div class="recommendation-info">
+                        <h3 class="recommendation-name">AODA Street</h3>
+                        <p class="recommendation-price">13.500 Kz</p>
+                        <button class="add-to-cart-small" onclick="app.addToCart(10, 'G')">Adicionar ao Carrinho</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+    <div class="footer-grid">
+        <div class="footer-brand">
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:0.75rem;">AODA Store</h3>
+            <p style="color:#999;font-size:0.9rem;">T-shirts oficiais com design exclusivo, qualidade premium e orgulho angolano.</p>
+        </div>
+        <div class="footer-col">
+            <h4 style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;color:#999;margin-bottom:1rem;">Loja</h4>
+            <a href="products.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Produtos</a>
+            <a href="cart.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Carrinho</a>
+            <a href="faq.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Perguntas Frequentes</a>
+        </div>
+        <div class="footer-col">
+            <h4 style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;color:#999;margin-bottom:1rem;">A Marca</h4>
+            <a href="about.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Sobre Nós</a>
+            <a href="contact.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Contacto</a>
+        </div>
+        <div class="footer-col">
+            <h4 style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;color:#999;margin-bottom:1rem;">Legal</h4>
+            <a href="privacy.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Privacidade</a>
+            <a href="terms.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Termos e Condições</a>
+            <a href="returns.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Devoluções</a>
+        </div>
+    </div>
+    <div style="max-width:1200px;margin:2rem auto 0;padding:1.5rem 2rem 0;border-top:1px solid #333;text-align:center;color:#666;font-size:0.85rem;">
+        &copy; 2026 AODA Store. Todos os direitos reservados.
+    </div>
+</footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Os cupões deixaram de ser uma lista fixa aqui — são geridos no
+        // admin.html (separador Promoções) e validados em tempo real
+        // através do AodaBackend.validateCoupon(), que consulta a coleção
+        // "coupons" no Firestore (código, tipo percentage/fixed, validade,
+        // limite de usos).
+        function applyPromoCode() {
+            var promoInput = document.getElementById('promoCode');
+            var promoCode = promoInput.value.trim().toUpperCase();
+            var applyBtn = document.querySelector('.apply-promo-btn');
+
+            if (!promoCode) return;
+
+            if (typeof AodaBackend === 'undefined' || typeof AodaBackend.validateCoupon !== 'function') {
+                showPromoInvalid(promoInput);
+                return;
+            }
+
+            applyBtn.disabled = true;
+            var originalBtnText = applyBtn.textContent;
+            applyBtn.textContent = 'A verificar…';
+
+            AodaBackend.validateCoupon(promoCode).then(function(coupon) {
+                applyBtn.disabled = false;
+                applyBtn.textContent = originalBtnText;
+
+                if (coupon) {
+                    app.activePromo = {
+                        id: coupon.id,
+                        code: coupon.code,
+                        type: coupon.type,
+                        value: coupon.value
+                    };
+
+                    anime({
+                        targets: promoInput,
+                        scale: [1, 1.03, 1],
+                        duration: 300,
+                        complete: function() {
+                            promoInput.style.borderColor = '#A8B5A0';
+                            promoInput.style.backgroundColor = '#f0f8f0';
+
+                            app.renderCart();
+
+                            applyBtn.textContent = 'Aplicado!';
+                            applyBtn.style.background = '#A8B5A0';
+                            applyBtn.style.color = 'white';
+
+                            setTimeout(function() {
+                                applyBtn.textContent = 'Aplicar Código';
+                                applyBtn.style.background = '';
+                                applyBtn.style.color = '';
+                            }, 2000);
+                        }
+                    });
+                } else {
+                    app.activePromo = null;
+                    app.renderCart();
+                    showPromoInvalid(promoInput);
+                }
+            });
+        }
+
+        function showPromoInvalid(promoInput) {
+            anime({
+                targets: promoInput,
+                translateX: [-10, 10, -10, 10, 0],
+                duration: 400,
+                complete: function() {
+                    promoInput.style.borderColor = '#ff6b6b';
+                    promoInput.style.backgroundColor = '#ffe0e0';
+
+                    setTimeout(function() {
+                        promoInput.style.borderColor = '';
+                        promoInput.style.backgroundColor = '';
+                    }, 2000);
+                }
+            });
+        }
+        
+        function proceedToCheckout() {
+            if (!app || app.cart.length === 0) return;
+            // Redirecionar para a página de checkout real
+            window.location.href = 'checkout.html';
+
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            var promoInput = document.getElementById('promoCode');
+            
+            promoInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    applyPromoCode();
+                }
+            });
+            
+            promoInput.addEventListener('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+        });
+        
+        window.addEventListener('scroll', function() {
+            var navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(254, 252, 248, 0.98)';
+                navbar.style.boxShadow = '0 2px 20px rgba(0,0,0,0.1)';
+            } else {
+                navbar.style.background = 'rgba(254, 252, 248, 0.95)';
+                navbar.style.boxShadow = 'none';
+            }
+        });
+    </script>
+        <script src="firebase-config.js"></script>
+    <script src="app-backend.js"></script>
+        <script src="shared-ux.js"></script>
+    <script>
+        // Inicializar UX quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            SharedUX.initImageFallbacks();
+        });
+    </script>
+        <script>
+        // Breadcrumbs do carrinho
+        document.addEventListener('DOMContentLoaded', function() {
+            SharedUX.renderBreadcrumbs([
+                { label: 'Incluído no preço se aplicado antes de clicar "Finalizar Compra"' },
+                { label: 'Início', url: 'index.html' },
+                { label: 'Produtos', url: 'products.html' },
+                { label: 'Carrinho', isCurrent: true }
+            ]);
+        });
+    </script>
+    <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("./sw.js");}</script>
+</body>
+</html>

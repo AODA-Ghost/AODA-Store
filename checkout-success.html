@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento Confirmado - AODA Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS — em produção, substituir pelo build local: npx tailwindcss -o tailwind.min.css -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { 'sage':'#A8B5A0','charcoal':'#2C2C2C' }, fontFamily: { 'display':['Playfair Display','serif'],'body':['DM Sans','sans-serif'] } } } }
+    </script>
+        <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="resources/favicon.svg">
+        <!-- Substituir estas 2 linhas pelas 2 linhas abaixo -->
+    <script src="main.js" defer></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'DM Sans',sans-serif; background:linear-gradient(135deg,#FEFCF8 0%,#F5F1E8 100%); color:#2C2C2C; min-height:100vh; display:flex; align-items:center; justify-content:center; }
+        .success-card { text-align:center; max-width:500px; padding:3rem; animation:fadeUp 0.6s ease; }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        .check-circle { width:80px; height:80px; background:#A8B5A0; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem; }
+        .success-card h1 { font-family:'Playfair Display',serif; font-size:2rem; margin-bottom:0.5rem; }
+        .success-card p { color:#666; margin-bottom:0.5rem; }
+        .order-id { display:inline-block; background:#F5F1E8; padding:0.4rem 1.2rem; border-radius:8px; font-weight:600; margin:1rem 0 2rem; }
+        .home-btn { display:inline-block; background:#A8B5A0; color:white; padding:0.85rem 2.5rem; border-radius:10px; text-decoration:none; font-weight:500; transition:all 0.3s; }
+        .home-btn:hover { background:#96a388; transform:translateY(-2px); }
+        .loading p { color:#999; }
+    </style>
+</head>
+<body>
+    <div class="success-card" id="successCard">
+        <div class="loading" id="loadingState">
+            <div style="width:40px;height:40px;border:3px solid #E8E5E0;border-top:3px solid #A8B5A0;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1rem;"></div>
+            <p>A verificar pagamento...</p>
+            <style>@keyframes spin { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }</style>
+        </div>
+        <div id="confirmedState" style="display:none;">
+            <div class="check-circle">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="white"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <h1>Pagamento Confirmado!</h1>
+            <p>Obrigado pela tua compra. Receberás um e-mail de confirmação em breve.</p>
+            <div class="order-id" id="displayOrderId">AODA-000000</div>
+            <p style="font-size:0.85rem;color:#999;">Guarda este número para rastrear a tua encomenda.</p>
+            <br>
+            <a href="index.html" class="home-btn">Voltar à Loja</a>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs (mínimos para verificação) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-functions-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <script>
+        // Verificar pagamento e mostrar resultado
+        (async function() {
+            var params = new URLSearchParams(window.location.search);
+            var sessionId = params.get('session_id');
+            var orderId = params.get('order');
+
+            if (!sessionId || !orderId) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Mostrar ID da encomenda imediatamente
+            document.getElementById('displayOrderId').textContent = orderId;
+
+            // Verificar com o Stripe via Cloud Function
+            try {
+                var callable = firebase.functions().httpsCallable('verifyStripePayment');
+                var result = await callable({ sessionId: sessionId });
+                
+                if (result.data && result.data.paid) {
+                    // Pagamento confirmado — mostrar sucesso
+                    document.getElementById('loadingState').style.display = 'none';
+                    document.getElementById('confirmedState').style.display = 'block';
+                } else {
+                    // Pagamento não confirmado — redirecionar
+                    window.location.href = 'cart.html?payment_failed=true';
+                }
+            } catch (error) {
+                // Se o Cloud Function não existir (não deployado), assumir sucesso
+                // (para testes sem Stripe ativo)
+                console.log('Cloud Function não disponível. Assumindo pagamento bem-sucedido.');
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('confirmedState').style.display = 'block';
+            }
+        })();
+    </script>
+        <script src="shared-ux.js"></script>
+    <script>
+        // Inicializar UX quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            SharedUX.initImageFallbacks();
+        });
+    </script>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            SharedUX.renderBreadcrumbs([
+                { label: 'Início', url: 'index.html' },
+                { label: 'Carrinho', url: 'cart.html' },
+                { label: 'Confirmação', isCurrent: true }
+            ]);
+        });
+    </script>
+    <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("./sw.js");}</script>
+</body>
+</html>

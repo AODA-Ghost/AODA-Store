@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto - AODA Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS — em produção, substituir pelo build local: npx tailwindcss -o tailwind.min.css -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: {
+                colors: { 'warm-white':'#FEFCF8','oat':'#F5F1E8','fog-gray':'#E8E5E0','charcoal':'#2C2C2C','sage':'#A8B5A0' },
+                fontFamily: { 'display':['Playfair Display','serif'],'body':['DM Sans','sans-serif'] }
+            }}
+        }
+    </script>
+        <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="resources/favicon.svg">
+        <!-- Substituir estas 2 linhas pelas 2 linhas abaixo -->
+    <link href="shared-ux.css" rel="stylesheet">
+    <script src="main.js" defer></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'DM Sans',sans-serif; background:linear-gradient(135deg,#FEFCF8 0%,#F5F1E8 100%); color:#2C2C2C; line-height:1.6; }
+        .navbar { position:fixed; top:0; width:100%; background:rgba(254,252,248,0.95); backdrop-filter:blur(20px); z-index:1000; transition:all 0.3s ease; }
+        .nav-link { position:relative; transition:color 0.3s ease; }
+        .nav-link:hover { color:#A8B5A0; }
+        .nav-link::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:2px; background:#A8B5A0; transition:width 0.3s ease; }
+        .nav-link:hover::after { width:100%; }
+        .cart-counter { position:absolute; top:-8px; right:-8px; background:#A8B5A0; color:white; border-radius:50%; width:20px; height:20px; font-size:12px; display:flex; align-items:center; justify-content:center; }
+        .page-header { padding:8rem 0 4rem; text-align:center; background:linear-gradient(135deg,#F5F1E8 0%,#E8E5E0 100%); }
+        .page-title { font-family:'Playfair Display',serif; font-size:3.5rem; margin-bottom:1rem; color:#2C2C2C; }
+        .page-subtitle { font-size:1.1rem; color:#666; max-width:600px; margin:0 auto; }
+
+        .contact-main { max-width:1000px; margin:0 auto; padding:4rem 2rem 6rem; display:grid; grid-template-columns:1fr 1fr; gap:4rem; }
+        .contact-info h2 { font-family:'Playfair Display',serif; font-size:1.5rem; margin-bottom:1.5rem; color:#2C2C2C; }
+        .info-item { display:flex; gap:1rem; margin-bottom:1.5rem; align-items:flex-start; }
+        .info-icon { width:44px; height:44px; background:#A8B5A0; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .info-icon svg { width:20px; height:20px; fill:white; }
+        .info-label { font-size:0.8rem; color:#999; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.15rem; }
+        .info-value { font-weight:500; color:#2C2C2C; }
+        .info-value a { color:#2C2C2C; text-decoration:none; }
+        .info-value a:hover { color:#A8B5A0; }
+        .social-links { display:flex; gap:0.75rem; margin-top:2rem; }
+        .social-link { width:44px; height:44px; background:#F5F1E8; border-radius:12px; display:flex; align-items:center; justify-content:center; transition:all 0.3s ease; }
+        .social-link:hover { background:#A8B5A0; }
+        .social-link:hover svg { fill:white; }
+        .social-link svg { width:20px; height:20px; fill:#666; transition:fill 0.3s; }
+
+        .contact-form-card { background:white; border-radius:20px; padding:2.5rem; box-shadow:0 4px 20px rgba(0,0,0,0.06); }
+        .contact-form-card h2 { font-family:'Playfair Display',serif; font-size:1.5rem; margin-bottom:1.5rem; color:#2C2C2C; }
+        .form-group { margin-bottom:1.25rem; }
+        .form-label { display:block; font-size:0.85rem; font-weight:500; color:#555; margin-bottom:0.35rem; }
+        .form-label .req { color:#ff6b6b; }
+        .form-input, .form-select, .form-textarea { width:100%; padding:0.75rem 1rem; border:1.5px solid #E8E5E0; border-radius:10px; font-size:0.95rem; font-family:'DM Sans',sans-serif; color:#2C2C2C; background:white; outline:none; transition:border-color 0.3s,box-shadow 0.3s; }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { border-color:#A8B5A0; box-shadow:0 0 0 3px rgba(168,181,160,0.15); }
+        .form-input.error, .form-textarea.error { border-color:#ff6b6b; }
+        .form-textarea { resize:vertical; min-height:120px; }
+        .form-select { cursor:pointer; }
+        .field-error { font-size:0.8rem; color:#ff6b6b; min-height:1.1rem; }
+        .form-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+        .submit-btn { width:100%; padding:1rem; background:#A8B5A0; color:white; border:none; border-radius:10px; font-size:1rem; font-weight:600; cursor:pointer; transition:all 0.3s; font-family:'DM Sans',sans-serif; }
+        .submit-btn:hover { background:#96a388; transform:translateY(-1px); box-shadow:0 8px 25px rgba(168,181,160,0.3); }
+        .submit-btn:disabled { background:#ccc; cursor:not-allowed; transform:none; box-shadow:none; }
+        .form-success { text-align:center; padding:2rem 0; }
+        .form-success svg { width:60px; height:60px; fill:#A8B5A0; margin-bottom:1rem; }
+        .form-success h3 { font-family:'Playfair Display',serif; font-size:1.5rem; margin-bottom:0.5rem; }
+        .form-success p { color:#666; }
+
+        .footer { background:#1a1a1a; color:white; padding:3rem 0; }
+        .footer-grid { max-width:1200px; margin:0 auto; padding:0 2rem; display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:3rem; }
+        .footer-brand h3 { font-family:'Playfair Display',serif; font-size:1.5rem; margin-bottom:0.75rem; }
+        .footer-brand p { color:#999; font-size:0.9rem; }
+        .footer-col h4 { font-size:0.85rem; text-transform:uppercase; letter-spacing:0.05em; color:#999; margin-bottom:1rem; }
+        .footer-col a { display:block; color:#ccc; text-decoration:none; font-size:0.9rem; margin-bottom:0.5rem; transition:color 0.2s; }
+        .footer-col a:hover { color:#A8B5A0; }
+        .footer-bottom { max-width:1200px; margin:2rem auto 0; padding:1.5rem 2rem 0; border-top:1px solid #333; text-align:center; color:#666; font-size:0.85rem; }
+        @media(max-width:768px) {
+            .page-title { font-size:2.5rem; }
+            .contact-main { grid-template-columns:1fr; gap:2rem; }
+            .form-row-2 { grid-template-columns:1fr; }
+            .footer-grid { grid-template-columns:1fr 1fr; }
+        }
+        @media(max-width:480px) { .footer-grid { grid-template-columns:1fr; } }
+        /* ========== MOBILE MENU ========== */
+.mobile-menu-backdrop {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 1500;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.35s ease;
+}
+.mobile-menu-backdrop.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.mobile-menu {
+    position: fixed;
+    top: 0; right: 0;
+    width: 300px;
+    max-width: 85vw;
+    height: 100%;
+    background: #FEFCF8;
+    z-index: 1600;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.mobile-menu-backdrop.open + .mobile-menu,
+.mobile-menu.open {
+    transform: translateX(0);
+}
+
+.mobile-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #E8E5E0;
+}
+
+.mobile-menu-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: #2C2C2C;
+    text-decoration: none;
+}
+
+.mobile-menu-close {
+    background: none;
+    border: none;
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: #666;
+}
+
+.mobile-menu-close:hover {
+    background: #F5F1E8;
+    color: #2C2C2C;
+}
+
+.mobile-menu-links {
+    flex: 1;
+    padding: 1.5rem 0;
+}
+
+.mobile-menu-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    color: #2C2C2C;
+    text-decoration: none;
+    font-size: 1.05rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.mobile-menu-link:hover,
+.mobile-menu-link.active {
+    color: #A8B5A0;
+    background: rgba(168, 181, 160, 0.06);
+}
+
+.mobile-menu-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 3px; height: 24px;
+    background: #A8B5A0;
+    border-radius: 0 3px 3px 0;
+}
+
+.mobile-menu-link svg {
+    width: 18px; height: 18px;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    flex-shrink: 0;
+}
+
+.mobile-menu-cart-badge {
+    background: #A8B5A0;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.1rem 0.45rem;
+    border-radius: 10px;
+    margin-left: 0.5rem;
+}
+
+.mobile-menu-divider {
+    height: 1px;
+    background: #E8E5E0;
+    margin: 0.5rem 1.5rem;
+}
+
+.mobile-menu-legal {
+    padding: 1.5rem;
+    border-top: 1px solid #E8E5E0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.25rem;
+}
+
+.mobile-menu-legal a {
+    font-size: 0.8rem;
+    color: #999;
+    text-decoration: none;
+    padding: 0.4rem 0;
+    transition: color 0.2s;
+}
+
+.mobile-menu-legal a:hover {
+    color: #A8B5A0;
+}
+
+/* Animação dos links ao abrir */
+.mobile-menu.open .mobile-menu-links .mobile-menu-link {
+    opacity: 0;
+    transform: translateX(20px);
+    animation: mobileLinkIn 0.3s ease forwards;
+}
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(1) { animation-delay: 0.1s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(2) { animation-delay: 0.15s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(3) { animation-delay: 0.2s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(4) { animation-delay: 0.25s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(5) { animation-delay: 0.3s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(6) { animation-delay: 0.35s; }
+
+@keyframes mobileLinkIn {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@media (min-width: 768px) {
+    .mobile-menu-backdrop,
+    .mobile-menu {
+        display: none !important;
+    }
+}
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="index.html" class="text-2xl font-display font-medium text-charcoal" style="text-decoration:none;color:#2C2C2C;">AODA Store</a>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="index.html" class="nav-link text-charcoal hover:text-sage px-3 py-2 text-sm font-medium">Início</a>
+                        <a href="products.html" class="nav-link text-charcoal hover:text-sage px-3 py-2 text-sm font-medium">Produtos</a>
+                        <a href="about.html" class="nav-link text-charcoal hover:text-sage px-3 py-2 text-sm font-medium">Sobre Nós</a>
+                        <a href="cart.html" class="nav-link text-charcoal hover:text-sage px-3 py-2 text-sm font-medium relative">Carrinho<span class="cart-counter" style="display:none;">0</span></a>
+                    </div>
+                </div>
+                <div class="md:hidden"><button class="text-charcoal hover:text-sage"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button></div>
+            </div>
+        </div>
+    </nav>
+        <!-- Mobile Menu -->
+    <div class="mobile-menu-backdrop" id="mobileBackdrop"></div>
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <a href="index.html" class="mobile-menu-brand">AODA Store</a>
+            <button class="mobile-menu-close" id="mobileClose" aria-label="Fechar menu">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="mobile-menu-links">
+            <a href="index.html" class="mobile-menu-link" data-page="index">
+                Início
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </a>
+            <a href="products.html" class="mobile-menu-link" data-page="products">
+                Produtos
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            </a>
+            <a href="about.html" class="mobile-menu-link" data-page="about">
+                Sobre Nós
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </a>
+            <a href="contact.html" class="mobile-menu-link" data-page="contact">
+                Contacto
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </a>
+            <a href="faq.html" class="mobile-menu-link" data-page="faq">
+                FAQ
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </a>
+            <div class="mobile-menu-divider"></div>
+            <a href="cart.html" class="mobile-menu-link" data-page="cart">
+                Carrinho
+                <span style="display:flex;align-items:center;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;stroke:currentColor;stroke-width:1.5;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                    <span class="mobile-menu-cart-badge" id="mobileCartBadge">0</span>
+                </span>
+            </a>
+        </div>
+        <div class="mobile-menu-legal">
+            <a href="privacy.html">Privacidade</a>
+            <a href="terms.html">Termos</a>
+            <a href="returns.html">Devoluções</a>
+            <a href="about.html">A Marca</a>
+        </div>
+    </div>
+
+    <section class="page-header">
+        <div class="container mx-auto px-4">
+            <h1 class="page-title">Contacto</h1>
+            <p class="page-subtitle">Tens alguma questão? Adoraríamos ajudar. Fala connosco por qualquer um dos canais abaixo.</p>
+        </div>
+    </section>
+
+    <div class="contact-main">
+        <div class="contact-info">
+            <h2>Informações de Contacto</h2>
+            <div class="info-item">
+                <div class="info-icon"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>
+                <div><div class="info-label">E-mail</div><div class="info-value"><a href="mailto:contacto@aodastore.co.ao">contacto@aodastore.co.ao</a></div></div>
+            </div>
+            <div class="info-item">
+                <div class="info-icon"><svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg></div>
+                <div><div class="info-label">Telefone / WhatsApp</div><div class="info-value"><a href="tel:+244923000000">+244 923 000 000</a></div></div>
+            </div>
+            <div class="info-item">
+                <div class="info-icon"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
+                <div><div class="info-label">Morada</div><div class="info-value">Luanda, Angola</div></div>
+            </div>
+            <div class="info-item">
+                <div class="info-icon"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg></div>
+                <div><div class="info-label">Horário</div><div class="info-value">Seg - Sex: 9h - 18h<br>Sáb: 9h - 14h</div></div>
+            </div>
+
+            <div class="social-links">
+                <a href="#" class="social-link" title="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+                <a href="#" class="social-link" title="Facebook"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+                <a href="#" class="social-link" title="TikTok"><svg viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg></a>
+            </div>
+        </div>
+
+        <div class="contact-form-card">
+            <h2>Envia-nos uma Mensagem</h2>
+            <form id="contactForm" novalidate>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label class="form-label">Nome <span class="req">*</span></label>
+                        <input type="text" class="form-input" id="cName" placeholder="O teu nome" required>
+                        <div class="field-error" id="cName-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">E-mail <span class="req">*</span></label>
+                        <input type="email" class="form-input" id="cEmail" placeholder="exemplo@email.com" required>
+                        <div class="field-error" id="cEmail-error"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Assunto <span class="req">*</span></label>
+                    <select class="form-select" id="cSubject" required>
+                        <option value="">Seleciona um assunto</option>
+                        <option value="order">Questão sobre encomenda</option>
+                        <option value="exchange">Troca ou devolução</option>
+                        <option value="sizing">Dúvida sobre tamanhos</option>
+                        <option value="wholesale">Encomenda por grosso</option>
+                        <option value="partnership">Parceria / Colaboração</option>
+                        <option value="other">Outro assunto</option>
+                    </select>
+                    <div class="field-error" id="cSubject-error"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mensagem <span class="req">*</span></label>
+                    <textarea class="form-textarea" id="cMessage" placeholder="Escreve a tua mensagem aqui..." required></textarea>
+                    <div class="field-error" id="cMessage-error"></div>
+                </div>
+                <button type="submit" class="submit-btn" id="contactSubmit">Enviar Mensagem</button>
+            </form>
+            <div class="form-success" id="contactSuccess" style="display:none;">
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <h3>Mensagem Enviada!</h3>
+                <p>Obrigado pelo teu contacto. Responderemos em até 24 horas úteis.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand"><h3>AODA Store</h3><p>T-shirts oficiais com design exclusivo, qualidade premium e orgulho angolano.</p></div>
+            <div class="footer-col"><h4>Loja</h4><a href="products.html">Produtos</a><a href="cart.html">Carrinho</a><a href="faq.html">Perguntas Frequentes</a></div>
+            <div class="footer-col"><h4>A Marca</h4><a href="about.html">Sobre Nós</a><a href="contact.html">Contacto</a></div>
+            <div class="footer-col"><h4>Legal</h4><a href="privacy.html">Privacidade</a><a href="terms.html">Termos e Condições</a><a href="returns.html">Devoluções</a></div>
+        </div>
+        <div class="footer-bottom">&copy; 2026 AODA Store. Todos os direitos reservados.</div>
+    </footer>
+
+    <script>
+        document.getElementById('contactForm').addEventListener('submit',function(e){
+            e.preventDefault();
+            var valid=true;
+            var fields=[
+                {id:'cName',min:2,label:'Nome'},
+                {id:'cEmail',type:'email',label:'E-mail'},
+                {id:'cSubject',label:'Assunto'},
+                {id:'cMessage',min:10,label:'Mensagem'}
+            ];
+            fields.forEach(function(f){
+                var input=document.getElementById(f.id);
+                var err=document.getElementById(f.id+'-error');
+                var val=input.value.trim();
+                var msg='';
+                if(!val){ msg=f.label+' é obrigatório'; }
+                else if(f.min && val.length<f.min){ msg='Mínimo de '+f.min+' caracteres'; }
+                else if(f.type==='email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)){ msg='Introduz um e-mail válido'; }
+                err.textContent=msg;
+                input.classList.toggle('error',!!msg);
+                if(msg) valid=false;
+            });
+            if(!valid) return;
+
+            var btn=document.getElementById('contactSubmit');
+            btn.textContent='A enviar...'; btn.disabled=true;
+            setTimeout(function(){
+                document.getElementById('contactForm').style.display='none';
+                document.getElementById('contactSuccess').style.display='block';
+            },1200);
+        });
+
+        window.addEventListener('scroll',function(){var n=document.querySelector('.navbar');if(window.scrollY>50){n.style.background='rgba(254,252,248,0.98)';n.style.boxShadow='0 2px 20px rgba(0,0,0,0.1)'}else{n.style.background='rgba(254,252,248,0.95)';n.style.boxShadow='none'}});
+    </script>
+        <script src="shared-ux.js"></script>
+    <script>
+        // Inicializar UX quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            SharedUX.initImageFallbacks();
+        });
+    </script>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            SharedUX.renderBreadcrumbs([
+                { label: 'Início', url: 'index.html' },
+                { label: 'Contacto', isCurrent: true }
+            ]);
+        });
+    </script>
+    <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("./sw.js");}</script>
+</body>
+</html>

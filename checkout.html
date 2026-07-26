@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finalizar Compra - AODA Store</title>
+    <meta name="description" content="Completa a tua encomenda de t-shirts AODA. Entregas em todo Angola.">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS — em produção, substituir pelo build local: npx tailwindcss -o tailwind.min.css -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'warm-white': '#FEFCF8',
+                        'oat': '#F5F1E8',
+                        'fog-gray': '#E8E5E0',
+                        'charcoal': '#2C2C2C',
+                        'sage': '#A8B5A0'
+                    },
+                    fontFamily: {
+                        'display': ['Playfair Display', 'serif'],
+                        'body': ['DM Sans', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+        <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="resources/favicon.svg">
+        <!-- Substituir estas 2 linhas pelas 2 linhas abaixo -->
+    <script src="main.js" defer></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, #FEFCF8 0%, #F5F1E8 100%);
+            color: #2C2C2C;
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0; width: 100%;
+            background: rgba(254, 252, 248, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        .nav-link { position: relative; transition: color 0.3s ease; }
+        .nav-link:hover { color: #A8B5A0; }
+        .nav-link::after {
+            content: ''; position: absolute;
+            bottom: -4px; left: 0;
+            width: 0; height: 2px;
+            background: #A8B5A0;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after { width: 100%; }
+        .cart-counter {
+            position: absolute; top: -8px; right: -8px;
+            background: #A8B5A0; color: white;
+            border-radius: 50%; width: 20px; height: 20px;
+            font-size: 12px; display: flex;
+            align-items: center; justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .cart-counter.pulse { animation: pulse 0.6s ease-in-out; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* Page Header */
+        .page-header {
+            padding: 8rem 0 3rem;
+            text-align: center;
+            background: linear-gradient(135deg, #F5F1E8 0%, #E8E5E0 100%);
+        }
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem; margin-bottom: 0.5rem; color: #2C2C2C;
+        }
+        .page-subtitle { font-size: 1rem; color: #666; }
+
+        /* Checkout Steps */
+        .checkout-steps {
+            display: flex; justify-content: center;
+            gap: 0; margin-top: 2rem; max-width: 500px; margin-left: auto; margin-right: auto;
+        }
+        .step {
+            display: flex; align-items: center; gap: 0.5rem;
+            font-size: 0.85rem; color: #999;
+        }
+        .step.active { color: #2C2C2C; font-weight: 600; }
+        .step.done { color: #A8B5A0; }
+        .step-number {
+            width: 28px; height: 28px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; font-weight: 600;
+            border: 2px solid #E8E5E0; color: #999;
+            transition: all 0.3s ease;
+        }
+        .step.active .step-number {
+            background: #A8B5A0; border-color: #A8B5A0; color: white;
+        }
+        .step.done .step-number {
+            background: #A8B5A0; border-color: #A8B5A0; color: white;
+        }
+        .step-divider {
+            width: 40px; height: 2px; background: #E8E5E0;
+            margin: 0 0.5rem; align-self: center;
+        }
+        .step-divider.done { background: #A8B5A0; }
+
+        /* Main Layout */
+        .checkout-main {
+            max-width: 1200px; margin: 0 auto;
+            padding: 3rem 2rem 6rem;
+            display: grid; grid-template-columns: 1fr 420px; gap: 3rem;
+        }
+
+        /* Form Sections */
+        .form-section {
+            background: white; border-radius: 20px;
+            padding: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            margin-bottom: 2rem;
+        }
+        .form-section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.35rem; margin-bottom: 1.5rem; color: #2C2C2C;
+            display: flex; align-items: center; gap: 0.75rem;
+        }
+        .form-section-title svg { width: 22px; height: 22px; stroke: #A8B5A0; fill: none; }
+
+        /* Form Grid */
+        .form-row {
+            display: grid; gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .form-row-2 { grid-template-columns: 1fr 1fr; }
+        .form-row-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+        .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+        .form-label {
+            font-size: 0.85rem; font-weight: 500; color: #555;
+        }
+        .form-label .required { color: #ff6b6b; margin-left: 2px; }
+
+        .form-input, .form-select, .form-textarea {
+            padding: 0.75rem 1rem;
+            border: 1.5px solid #E8E5E0;
+            border-radius: 10px; font-size: 0.95rem;
+            font-family: 'DM Sans', sans-serif;
+            color: #2C2C2C; background: white;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            outline: none;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: #A8B5A0;
+            box-shadow: 0 0 0 3px rgba(168, 181, 160, 0.15);
+        }
+        .form-input.error, .form-select.error, .form-textarea.error {
+            border-color: #ff6b6b;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+        }
+        .form-input.valid, .form-select.valid {
+            border-color: #A8B5A0;
+        }
+        .form-textarea { resize: vertical; min-height: 80px; }
+        .form-select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23999' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; padding-right: 2.5rem; }
+
+        .field-error {
+            font-size: 0.8rem; color: #ff6b6b;
+            min-height: 1.1rem; transition: all 0.2s ease;
+        }
+
+        /* Radio Cards (Entrega e Pagamento) */
+        .option-cards { display: flex; flex-direction: column; gap: 0.75rem; }
+        .option-card {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 1rem 1.25rem; border: 1.5px solid #E8E5E0;
+            border-radius: 12px; cursor: pointer;
+            transition: all 0.3s ease; position: relative;
+        }
+        .option-card:hover { border-color: #c8c5c0; }
+        .option-card.selected { border-color: #A8B5A0; background: rgba(168, 181, 160, 0.05); }
+        .option-card input[type="radio"] { display: none; }
+        .option-radio {
+            width: 20px; height: 20px; border-radius: 50%;
+            border: 2px solid #ccc; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .option-card.selected .option-radio {
+            border-color: #A8B5A0;
+        }
+        .option-radio::after {
+            content: ''; width: 10px; height: 10px;
+            border-radius: 50%; background: #A8B5A0;
+            transform: scale(0); transition: transform 0.2s ease;
+        }
+        .option-card.selected .option-radio::after { transform: scale(1); }
+        .option-info { flex: 1; }
+        .option-title { font-weight: 500; font-size: 0.95rem; color: #2C2C2C; }
+        .option-desc { font-size: 0.8rem; color: #888; margin-top: 2px; }
+        .option-price { font-weight: 600; font-size: 0.9rem; color: #A8B5A0; white-space: nowrap; }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%; padding: 1.1rem;
+            background: #A8B5A0; color: white;
+            border: none; border-radius: 12px;
+            font-size: 1.05rem; font-weight: 600;
+            cursor: pointer; transition: all 0.3s ease;
+            font-family: 'DM Sans', sans-serif;
+            margin-top: 0.5rem;
+        }
+        .submit-btn:hover { background: #96a388; transform: translateY(-1px); box-shadow: 0 8px 25px rgba(168, 181, 160, 0.3); }
+        .submit-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+        .submit-btn.processing { pointer-events: none; }
+
+        /* Summary Sidebar */
+        .checkout-summary {
+            background: white; border-radius: 20px;
+            padding: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            height: fit-content; position: sticky; top: 100px;
+        }
+        .summary-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.35rem; margin-bottom: 1.5rem; color: #2C2C2C;
+        }
+        .summary-items { margin-bottom: 1.5rem; }
+        .summary-item {
+            display: flex; gap: 1rem; align-items: center;
+            padding: 0.75rem 0; border-bottom: 1px solid #f5f5f5;
+        }
+        .summary-item:last-child { border-bottom: none; }
+        .summary-item-img {
+            width: 56px; height: 56px; border-radius: 8px;
+            object-fit: cover; flex-shrink: 0;
+        }
+        .summary-item-info { flex: 1; min-width: 0; }
+        .summary-item-name { font-size: 0.9rem; font-weight: 500; color: #2C2C2C; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .summary-item-meta { font-size: 0.8rem; color: #888; }
+        .summary-item-price { font-weight: 600; font-size: 0.9rem; color: #2C2C2C; white-space: nowrap; }
+
+        .summary-totals { border-top: 1px solid #E8E5E0; padding-top: 1rem; }
+        .totals-row { display: flex; justify-content: space-between; margin-bottom: 0.6rem; font-size: 0.9rem; }
+        .totals-row.total { font-size: 1.05rem; font-weight: 600; border-top: 1px solid #E8E5E0; padding-top: 0.75rem; margin-top: 0.75rem; }
+
+        .summary-edit {
+            display: inline-block; font-size: 0.85rem; color: #A8B5A0;
+            text-decoration: none; margin-bottom: 1rem; transition: color 0.2s;
+        }
+        .summary-edit:hover { color: #96a388; }
+
+        .summary-secure {
+            text-align: center; margin-top: 1.5rem;
+            padding-top: 1rem; border-top: 1px solid #E8E5E0;
+            font-size: 0.8rem; color: #999;
+        }
+        .summary-secure svg { width: 14px; height: 14px; vertical-align: middle; margin-right: 4px; }
+
+        /* Success Overlay */
+        .success-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(254, 252, 248, 0.97);
+            z-index: 3000; display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: all 0.4s ease;
+        }
+        .success-overlay.show { opacity: 1; visibility: visible; }
+        .success-box {
+            text-align: center; max-width: 450px; padding: 2rem;
+            transform: translateY(30px); transition: transform 0.4s ease;
+        }
+        .success-overlay.show .success-box { transform: translateY(0); }
+        .success-check {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: #A8B5A0; margin: 0 auto 1.5rem;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .success-box h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem; margin-bottom: 0.75rem; color: #2C2C2C;
+        }
+        .success-box p { color: #666; margin-bottom: 0.5rem; font-size: 0.95rem; }
+        .success-order-id {
+            display: inline-block; background: #F5F1E8;
+            padding: 0.4rem 1rem; border-radius: 8px;
+            font-weight: 600; font-size: 0.9rem; color: #2C2C2C;
+            margin: 1rem 0 2rem;
+        }
+        .success-btn {
+            display: inline-block; background: #A8B5A0; color: white;
+            padding: 0.85rem 2.5rem; border-radius: 10px;
+            text-decoration: none; font-weight: 500;
+            transition: all 0.3s ease; border: none; cursor: pointer;
+            font-size: 0.95rem; font-family: 'DM Sans', sans-serif;
+        }
+        .success-btn:hover { background: #96a388; transform: translateY(-2px); }
+
+        /* Footer */
+        .footer { background:#1a1a1a; color:white; padding:3rem 0; }
+.footer-grid { max-width:1200px; margin:0 auto; padding:0 2rem; display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:3rem; }
+.footer-col a:hover { color:#A8B5A0; }
+@media(max-width:768px) { .footer-grid { grid-template-columns:1fr 1fr; } }
+@media(max-width:480px) { .footer-grid { grid-template-columns:1fr; } }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .checkout-main { grid-template-columns: 1fr; }
+            .checkout-summary { position: static; order: -1; }
+        }
+        @media (max-width: 768px) {
+            .page-title { font-size: 2.2rem; }
+            .form-row-2, .form-row-3 { grid-template-columns: 1fr; }
+            .checkout-steps { gap: 0; }
+            .step span.step-label { display: none; }
+            .step-divider { width: 24px; }
+            .option-card { flex-wrap: wrap; }
+        }
+        /* ========== MOBILE MENU ========== */
+.mobile-menu-backdrop {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 1500;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.35s ease;
+}
+.mobile-menu-backdrop.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.mobile-menu {
+    position: fixed;
+    top: 0; right: 0;
+    width: 300px;
+    max-width: 85vw;
+    height: 100%;
+    background: #FEFCF8;
+    z-index: 1600;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.mobile-menu-backdrop.open + .mobile-menu,
+.mobile-menu.open {
+    transform: translateX(0);
+}
+
+.mobile-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #E8E5E0;
+}
+
+.mobile-menu-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: #2C2C2C;
+    text-decoration: none;
+}
+
+.mobile-menu-close {
+    background: none;
+    border: none;
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: #666;
+}
+
+.mobile-menu-close:hover {
+    background: #F5F1E8;
+    color: #2C2C2C;
+}
+
+.mobile-menu-links {
+    flex: 1;
+    padding: 1.5rem 0;
+}
+
+.mobile-menu-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    color: #2C2C2C;
+    text-decoration: none;
+    font-size: 1.05rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.mobile-menu-link:hover,
+.mobile-menu-link.active {
+    color: #A8B5A0;
+    background: rgba(168, 181, 160, 0.06);
+}
+
+.mobile-menu-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 3px; height: 24px;
+    background: #A8B5A0;
+    border-radius: 0 3px 3px 0;
+}
+
+.mobile-menu-link svg {
+    width: 18px; height: 18px;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    flex-shrink: 0;
+}
+
+.mobile-menu-cart-badge {
+    background: #A8B5A0;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.1rem 0.45rem;
+    border-radius: 10px;
+    margin-left: 0.5rem;
+}
+
+.mobile-menu-divider {
+    height: 1px;
+    background: #E8E5E0;
+    margin: 0.5rem 1.5rem;
+}
+
+.mobile-menu-legal {
+    padding: 1.5rem;
+    border-top: 1px solid #E8E5E0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.25rem;
+}
+
+.mobile-menu-legal a {
+    font-size: 0.8rem;
+    color: #999;
+    text-decoration: none;
+    padding: 0.4rem 0;
+    transition: color 0.2s;
+}
+
+.mobile-menu-legal a:hover {
+    color: #A8B5A0;
+}
+
+/* Animação dos links ao abrir */
+.mobile-menu.open .mobile-menu-links .mobile-menu-link {
+    opacity: 0;
+    transform: translateX(20px);
+    animation: mobileLinkIn 0.3s ease forwards;
+}
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(1) { animation-delay: 0.1s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(2) { animation-delay: 0.15s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(3) { animation-delay: 0.2s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(4) { animation-delay: 0.25s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(5) { animation-delay: 0.3s; }
+.mobile-menu.open .mobile-menu-links .mobile-menu-link:nth-child(6) { animation-delay: 0.35s; }
+
+@keyframes mobileLinkIn {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@media (min-width: 768px) {
+    .mobile-menu-backdrop,
+    .mobile-menu {
+        display: none !important;
+    }
+}
+    </style>
+        <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+        <!-- EmailJS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <!-- Firebase Functions (para Stripe, quando disponível) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-functions-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-2xl font-display font-medium text-charcoal" style="text-decoration:none;color:#2C2C2C;">AODA Store</a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="index.html" class="nav-link text-charcoal hover:text-sage px-3 py-2 text-sm font-medium">Início</a>
+                        <a href="products.html" class="nav-link text-charcoal hover:text-sage px-3 py-2 text-sm font-medium">Produtos</a>
+                        <a href="cart.html" class="nav-link text-charcoal hover:text-sage px-3 py-2 text-sm font-medium relative">
+                            Carrinho
+                            <span class="cart-counter" style="display: none;">0</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button class="text-charcoal hover:text-sage">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+        <!-- Mobile Menu -->
+    <div class="mobile-menu-backdrop" id="mobileBackdrop"></div>
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <a href="index.html" class="mobile-menu-brand">AODA Store</a>
+            <button class="mobile-menu-close" id="mobileClose" aria-label="Fechar menu">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="mobile-menu-links">
+            <a href="index.html" class="mobile-menu-link" data-page="index">
+                Início
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </a>
+            <a href="products.html" class="mobile-menu-link" data-page="products">
+                Produtos
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            </a>
+            <a href="about.html" class="mobile-menu-link" data-page="about">
+                Sobre Nós
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </a>
+            <a href="contact.html" class="mobile-menu-link" data-page="contact">
+                Contacto
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </a>
+            <a href="faq.html" class="mobile-menu-link" data-page="faq">
+                FAQ
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </a>
+            <div class="mobile-menu-divider"></div>
+            <a href="cart.html" class="mobile-menu-link" data-page="cart">
+                Carrinho
+                <span style="display:flex;align-items:center;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;stroke:currentColor;stroke-width:1.5;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                    <span class="mobile-menu-cart-badge" id="mobileCartBadge">0</span>
+                </span>
+            </a>
+        </div>
+        <div class="mobile-menu-legal">
+            <a href="privacy.html">Privacidade</a>
+            <a href="terms.html">Termos</a>
+            <a href="returns.html">Devoluções</a>
+            <a href="about.html">A Marca</a>
+        </div>
+    </div>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container mx-auto px-4">
+            <h1 class="page-title">Finalizar Compra</h1>
+            <p class="page-subtitle">Preenche os teus dados para completar a encomenda</p>
+            <div class="checkout-steps">
+                <div class="step done">
+                    <div class="step-number">✓</div>
+                    <span class="step-label">Carrinho</span>
+                </div>
+                <div class="step-divider done"></div>
+                <div class="step active">
+                    <div class="step-number">2</div>
+                    <span class="step-label">Dados</span>
+                </div>
+                <div class="step-divider"></div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <span class="step-label">Confirmação</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Checkout -->
+    <div class="checkout-main">
+        <!-- Form Column -->
+        <div class="form-column">
+            <form id="checkoutForm" novalidate>
+
+                <!-- Dados Pessoais -->
+                <div class="form-section">
+                    <h2 class="form-section-title">
+                        <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        Dados Pessoais
+                    </h2>
+                    <div class="form-row form-row-2">
+                        <div class="form-group">
+                            <label class="form-label">Nome Completo <span class="required">*</span></label>
+                            <input type="text" class="form-input" id="fullName" placeholder="Ex: João da Silva" required>
+                            <span class="field-error" id="fullName-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">E-mail <span class="required">*</span></label>
+                            <input type="email" class="form-input" id="email" placeholder="exemplo@email.com" required>
+                            <span class="field-error" id="email-error"></span>
+                        </div>
+                    </div>
+                    <div class="form-row form-row-2">
+                        <div class="form-group">
+                            <label class="form-label">Telefone <span class="required">*</span></label>
+                            <input type="tel" class="form-input" id="phone" placeholder="923 456 789" required>
+                            <span class="field-error" id="phone-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">N.º de BI / Passporte</label>
+                            <input type="text" class="form-input" id="docNumber" placeholder="Opcional">
+                            <span class="field-error" id="docNumber-error"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Morada de Entrega -->
+                <div class="form-section">
+                    <h2 class="form-section-title">
+                        <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        Morada de Entrega
+                    </h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Rua / Avenida <span class="required">*</span></label>
+                            <input type="text" class="form-input" id="street" placeholder="Ex: Rua das Flores" required>
+                            <span class="field-error" id="street-error"></span>
+                        </div>
+                    </div>
+                    <div class="form-row form-row-3">
+                        <div class="form-group">
+                            <label class="form-label">Nº da Casa <span class="required">*</span></label>
+                            <input type="text" class="form-input" id="houseNumber" placeholder="Ex: 45" required>
+                            <span class="field-error" id="houseNumber-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Bairro <span class="required">*</span></label>
+                            <input type="text" class="form-input" id="neighborhood" placeholder="Ex: Maianga" required>
+                            <span class="field-error" id="neighborhood-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Complemento</label>
+                            <input type="text" class="form-input" id="addressExtra" placeholder="Bloco, Apt, Referência">
+                            <span class="field-error"></span>
+                        </div>
+                    </div>
+                    <div class="form-row form-row-2">
+                        <div class="form-group">
+                            <label class="form-label">Município <span class="required">*</span></label>
+                            <input type="text" class="form-input" id="municipality" placeholder="Ex: Viana" required>
+                            <span class="field-error" id="municipality-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Província <span class="required">*</span></label>
+                            <select class="form-select" id="province" required>
+                                <option value="">Seleciona a província</option>
+                                <option value="Bengo">Bengo</option>
+                                <option value="Benguela">Benguela</option>
+                                <option value="Bié">Bié</option>
+                                <option value="Cabinda">Cabinda</option>
+                                <option value="Cuando Cubango">Cuando Cubango</option>
+                                <option value="Cuanza Norte">Cuanza Norte</option>
+                                <option value="Cuanza Sul">Cuanza Sul</option>
+                                <option value="Cunene">Cunene</option>
+                                <option value="Huambo">Huambo</option>
+                                <option value="Huíla">Huíla</option>
+                                <option value="Luanda" selected>Luanda</option>
+                                <option value="Lunda Norte">Lunda Norte</option>
+                                <option value="Lunda Sul">Lunda Sul</option>
+                                <option value="Malanje">Malanje</option>
+                                <option value="Moxico">Moxico</option>
+                                <option value="Namibe">Namibe</option>
+                                <option value="Uíge">Uíge</option>
+                                <option value="Zaire">Zaire</option>
+                            </select>
+                            <span class="field-error" id="province-error"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Método de Entrega -->
+                <div class="form-section">
+                    <h2 class="form-section-title">
+                        <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                        Método de Entrega
+                    </h2>
+                    <div class="option-cards" id="shippingOptions">
+                        <label class="option-card selected" data-value="standard" data-cost="0">
+                            <input type="radio" name="shipping" value="standard" checked>
+                            <div class="option-radio"></div>
+                            <div class="option-info">
+                                <div class="option-title">Entrega Standard</div>
+                                <div class="option-desc">2 a 5 dias úteis</div>
+                            </div>
+                            <div class="option-price" id="standardPrice">Grátis</div>
+                        </label>
+                        <label class="option-card" data-value="express" data-cost="2500">
+                            <input type="radio" name="shipping" value="express">
+                            <div class="option-radio"></div>
+                            <div class="option-info">
+                                <div class="option-title">Entrega Express</div>
+                                <div class="option-desc">24 a 48 horas (Luanda)</div>
+                            </div>
+                            <div class="option-price">2.500 Kz</div>
+                        </label>
+                        <label class="option-card" data-value="pickup" data-cost="0">
+                            <input type="radio" name="shipping" value="pickup">
+                            <div class="option-radio"></div>
+                            <div class="option-info">
+                                <div class="option-title">Levantar na Loja</div>
+                                <div class="option-desc">Retira na nossa loja em Luanda</div>
+                            </div>
+                            <div class="option-price">Grátis</div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Método de Pagamento -->
+                <div class="form-section">
+                    <h2 class="form-section-title">
+                        <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                        Método de Pagamento
+                    </h2>
+                    <div class="option-cards" id="paymentOptions">
+                        <label class="option-card selected" data-value="multicaixa">
+                            <input type="radio" name="payment" value="multicaixa" checked>
+                            <div class="option-radio"></div>
+                            <div class="option-info">
+                                <div class="option-title">Multicaixa Express</div>
+                                <div class="option-desc">Pagamento instantâneo via app Multicaixa</div>
+                            </div>
+                        </label>
+                        <label class="option-card" data-value="transfer">
+                            <input type="radio" name="payment" value="transfer">
+                            <div class="option-radio"></div>
+                            <div class="option-info">
+                                <div class="option-title">Transferência Bancária</div>
+                                <div class="option-desc">IBAN será enviado por e-mail após confirmação</div>
+                            </div>
+                        </label>
+                        <label class="option-card" data-value="cod">
+                            <input type="radio" name="payment" value="cod">
+                            <div class="option-radio"></div>
+                            <div class="option-info">
+                                <div class="option-title">Pagamento na Entrega</div>
+                                <div class="option-desc">Paga em dinheiro quando receber a encomenda</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Observações -->
+                <div class="form-section">
+                    <h2 class="form-section-title">
+                        <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        Observações
+                    </h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <textarea class="form-textarea" id="notes" placeholder="Instruções especiais para a entrega, horário preferido, etc. (opcional)"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    Confirmar Pedido
+                </button>
+            </form>
+        </div>
+
+        <!-- Summary Sidebar -->
+        <aside class="checkout-summary">
+            <a href="cart.html" class="summary-edit">← Editar carrinho</a>
+            <h2 class="summary-title">Resumo do Pedido</h2>
+            <div class="summary-items" id="summaryItems">
+                <!-- Preenchido pelo main.js -->
+            </div>
+            <div class="summary-totals" id="summaryTotals">
+                <!-- Preenchido pelo main.js -->
+            </div>
+            <div class="summary-secure">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Pagamento 100% seguro e encriptado
+            </div>
+        </aside>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+    <div class="footer-grid">
+        <div class="footer-brand">
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:0.75rem;">AODA Store</h3>
+            <p style="color:#999;font-size:0.9rem;">T-shirts oficiais com design exclusivo, qualidade premium e orgulho angolano.</p>
+        </div>
+        <div class="footer-col">
+            <h4 style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;color:#999;margin-bottom:1rem;">Loja</h4>
+            <a href="products.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Produtos</a>
+            <a href="cart.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Carrinho</a>
+            <a href="faq.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Perguntas Frequentes</a>
+        </div>
+        <div class="footer-col">
+            <h4 style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;color:#999;margin-bottom:1rem;">A Marca</h4>
+            <a href="about.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Sobre Nós</a>
+            <a href="contact.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Contacto</a>
+        </div>
+        <div class="footer-col">
+            <h4 style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.05em;color:#999;margin-bottom:1rem;">Legal</h4>
+            <a href="privacy.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Privacidade</a>
+            <a href="terms.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Termos e Condições</a>
+            <a href="returns.html" style="display:block;color:#ccc;text-decoration:none;font-size:0.9rem;margin-bottom:0.5rem;">Devoluções</a>
+        </div>
+    </div>
+    <div style="max-width:1200px;margin:2rem auto 0;padding:1.5rem 2rem 0;border-top:1px solid #333;text-align:center;color:#666;font-size:0.85rem;">
+        &copy; 2026 AODA Store. Todos os direitos reservados.
+    </div>
+</footer>
+
+    <!-- Success Overlay -->
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-box">
+            <div class="success-check">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="white"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <h2>Pedido Confirmado!</h2>
+            <p>Obrigado pela tua compra. Receberás um e-mail de confirmação em breve.</p>
+            <div class="success-order-id" id="orderId">AODA-000000</div>
+            <p style="font-size:0.85rem;color:#999;">Guarda este número para rastrear a tua encomenda.</p>
+            <a href="index.html" class="success-btn" style="margin-top:1.5rem;">Voltar à Loja</a>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // ========== Variáveis do Checkout ==========
+        var selectedShipping = 'standard';
+        var shippingCost = 0;
+
+        // ========== Option Cards (Entrega e Pagamento) ==========
+        document.querySelectorAll('.option-cards').forEach(function(group) {
+            group.querySelectorAll('.option-card').forEach(function(card) {
+                card.addEventListener('click', function() {
+                    // Desmarcar todos do mesmo grupo
+                    group.querySelectorAll('.option-card').forEach(function(c) {
+                        c.classList.remove('selected');
+                    });
+                    card.classList.add('selected');
+                    card.querySelector('input[type="radio"]').checked = true;
+
+                    // Se for grupo de entrega, atualizar custo
+                    if (group.id === 'shippingOptions') {
+                        selectedShipping = card.dataset.value;
+                        shippingCost = parseInt(card.dataset.cost) || 0;
+                        app.renderCheckoutTotals(shippingCost);
+                    }
+                });
+            });
+        });
+
+        // ========== Validação em Tempo Real ==========
+        var validationRules = {
+            fullName:  { required: true,  minLength: 3, label: 'Nome completo' },
+            email:     { required: true,  pattern: 'email', label: 'E-mail' },
+            phone:     { required: true,  pattern: 'phone', label: 'Telefone' },
+            street:    { required: true,  minLength: 3, label: 'Rua / Avenida' },
+            houseNumber:{ required: true, label: 'Nº da casa' },
+            neighborhood:{ required: true, minLength: 2, label: 'Bairro' },
+            municipality:{ required: true, minLength: 2, label: 'Município' },
+            province:  { required: true, label: 'Província' }
+        };
+
+        // Validar campo individual
+        function validateField(fieldId) {
+            var input = document.getElementById(fieldId);
+            var errorSpan = document.getElementById(fieldId + '-error');
+            var rule = validationRules[fieldId];
+            if (!input || !rule || !errorSpan) return true;
+
+            var value = input.value.trim();
+            var error = '';
+
+            if (rule.required && !value) {
+                error = rule.label + ' é obrigatório';
+            } else if (value) {
+                if (rule.minLength && value.length < rule.minLength) {
+                    error = 'Mínimo de ' + rule.minLength + ' caracteres';
+                }
+                if (rule.pattern === 'email') {
+                    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(value)) error = 'Introduz um e-mail válido';
+                }
+                if (rule.pattern === 'phone') {
+                    var digits = value.replace(/[\s\-\.\(\)]/g, '');
+                    if (digits.length < 9) error = 'Introduz um número válido (mín. 9 dígitos)';
+                }
+            }
+
+            errorSpan.textContent = error;
+            input.classList.remove('error', 'valid');
+            if (error) {
+                input.classList.add('error');
+                return false;
+            } else if (value) {
+                input.classList.add('valid');
+            }
+            return true;
+        }
+
+        // Adicionar validação on blur
+        Object.keys(validationRules).forEach(function(fieldId) {
+            var input = document.getElementById(fieldId);
+            if (input) {
+                input.addEventListener('blur', function() { validateField(fieldId); });
+                input.addEventListener('input', function() {
+                    // Limpar erro ao digitar
+                    if (input.classList.contains('error')) {
+                        validateField(fieldId);
+                    }
+                });
+            }
+        });
+
+        // ========== Submeter Formulário ==========
+        document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Validar todos os campos
+            var firstError = null;
+            var allValid = true;
+
+            Object.keys(validationRules).forEach(function(fieldId) {
+                var isValid = validateField(fieldId);
+                if (!isValid && allValid) {
+                    allValid = false;
+                    firstError = fieldId;
+                }
+            });
+
+            if (!allValid) {
+                // Scroll para o primeiro erro
+                var errorElement = document.getElementById(firstError);
+                if (errorElement) {
+                    errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    errorElement.focus();
+                }
+                // Animação de shake no botão
+                anime({
+                    targets: '#submitBtn',
+                    translateX: [-8, 8, -8, 8, 0],
+                    duration: 400
+                });
+                return;
+            }
+
+            // Processar pedido
+            processOrder();
+        });
+
+                    function processOrder() {
+            var btn = document.getElementById('submitBtn');
+            var method = document.querySelector('input[name="payment"]:checked').value;
+            btn.textContent = 'A processar pedido...';
+            btn.classList.add('processing');
+            btn.disabled = true;
+
+            var orderNum = 'AODA-' + Date.now().toString().slice(-6);
+            document.getElementById('orderId').textContent = orderNum;
+
+            var orderData = {
+                id: orderNum,
+                date: new Date().toISOString(),
+                customer: {
+                    name: document.getElementById('fullName').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    phone: document.getElementById('phone').value.trim(),
+                    document: document.getElementById('docNumber').value.trim()
+                },
+                address: {
+                    street: document.getElementById('street').value.trim(),
+                    number: document.getElementById('houseNumber').value.trim(),
+                    neighborhood: document.getElementById('neighborhood').value.trim(),
+                    extra: document.getElementById('addressExtra').value.trim(),
+                    municipality: document.getElementById('municipality').value.trim(),
+                    province: document.getElementById('province').value
+                },
+                shipping: selectedShipping,
+                payment: method,
+                notes: document.getElementById('notes').value.trim(),
+                items: app.cart,
+                totals: app.getCheckoutTotals(shippingCost)
+            };
+
+                        // Associar ao utilizador autenticado (se existir)
+            var user = AuthService.getCurrentUser();
+            if (user) {
+                orderData.userId = user.uid;
+                orderData.customer.name = orderData.customer.name || user.displayName;
+                orderData.customer.email = orderData.customer.email || user.email;
+            }
+
+            // Fluxo: 1. Guardar no Firebase → 2. Processar pagamento → 3. Enviar e-mail → 4. Mostrar sucesso
+            AodaBackend.saveOrder(orderData).then(function(firebaseId) {
+                orderData.firebaseId = firebaseId;
+                localStorage.setItem('aoda_last_order', JSON.stringify(orderData));
+
+                // Contabilizar o uso do cupão aplicado (respeita o limite maxUses)
+                var couponId = orderData.totals && orderData.totals.couponId;
+                if (couponId) {
+                    AodaBackend.incrementCouponUsage(couponId);
+                }
+
+                // Processar pagamento
+                return PaymentService.processPayment(orderData);
+            })
+            .then(function(paymentResult) {
+                // Enviar e-mails de confirmação
+                EmailService.sendOrderEmails(orderData);
+
+                // Limpar carrinho
+                app.clearCart();
+
+                // Se for Stripe, o redirecionamento já aconteceu no PaymentService
+                if (paymentResult === 'redirecting') return;
+
+                // Para os outros métodos, mostrar sucesso
+                document.getElementById('successOverlay').classList.add('show');
+                document.body.style.overflow = 'hidden';
+
+                btn.textContent = 'Confirmar Pedido';
+                btn.classList.remove('processing');
+                btn.disabled = false;
+            })
+            .catch(function(error) {
+                console.error('Erro no processamento:', error);
+                btn.textContent = 'Confirmar Pedido';
+                btn.classList.remove('processing');
+                btn.disabled = false;
+
+                // Mostrar erro
+                var errorMsg = error.message || 'Erro ao processar o pedido. Tenta novamente.';
+                var errDiv = document.createElement('div');
+                errDiv.style.cssText = 'background:#f8d7da;color:#721c24;padding:0.75rem 1rem;border-radius:8px;font-size:0.9rem;margin-bottom:1rem;';
+                errDiv.textContent = errorMsg;
+                btn.parentNode.insertBefore(errDiv, btn);
+                setTimeout(function() { errDiv.remove(); }, 5000);
+            });
+        }
+
+        // ========== Navbar Scroll ==========
+        window.addEventListener('scroll', function() {
+            var navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(254, 252, 248, 0.98)';
+                navbar.style.boxShadow = '0 2px 20px rgba(0,0,0,0.1)';
+            } else {
+                navbar.style.background = 'rgba(254, 252, 248, 0.95)';
+                navbar.style.boxShadow = 'none';
+            }
+        });
+    </script>
+        <script src="auth-service.js"></script>
+        <script src="firebase-config.js"></script>
+    <script src="app-backend.js"></script>
+        <script src="email-service.js"></script>
+    <script src="payment-service.js"></script>
+    <script>
+        // Inicializar EmailJS quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            EmailService.init();
+        });
+    </script>
+    <script src="shared-ux.js"></script>
+    <script>
+        // Inicializar UX quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            SharedUX.initImageFallbacks();
+        });
+    </script>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            SharedUX.renderBreadcrumbs([
+                { label: 'Início', url: 'index.html' },
+                { label: 'Produtos', url: 'products.html' },
+                { label: 'Carrinho', url: 'cart.html' },
+                { label: 'Finalizar Compra', isCurrent: true }
+            ]);
+        });
+    </script>
+    <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("./sw.js");}</script>
+</body>
+</html>

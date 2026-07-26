@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - AODA Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={theme:{extend:{colors:{'warm-white':'#FEFCF8','oat':'#F5F1E8','fog-gray':'#E8E5E0','charcoal':'#2C2C2C','sage':'#A8B5A0'},fontFamily:{'display':['Playfair Display','serif'],'body':['DM Sans','sans-serif']}}}}</script>
+    <link rel="icon" type="image/svg+xml" href="resources/favicon.svg">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'DM Sans',sans-serif;background:#f5f5f5;color:#2C2C2C;line-height:1.6}
+        /* Login */
+        .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#FEFCF8 0%,#F5F1E8 100%)}
+        .login-card{background:white;padding:2.5rem;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.08);max-width:420px;width:90%;text-align:center}
+        .login-card h1{font-family:'Playfair Display',serif;font-size:1.8rem;margin-bottom:.5rem}
+        .login-card p{color:#888;font-size:.9rem;margin-bottom:1.5rem}
+        .login-icon{width:56px;height:56px;background:#A8B5A0;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem}
+        .login-icon svg{width:26px;height:26px;fill:white;stroke:none}
+        .fg{margin-bottom:1.25rem;text-align:left}
+        .fl{display:block;font-size:.85rem;font-weight:500;color:#555;margin-bottom:.35rem}
+        .fi{width:100%;padding:.75rem 1rem;border:1.5px solid #E8E5E0;border-radius:10px;font-size:.95rem;font-family:inherit;outline:none;transition:border .3s;color:#2C2C2C;background:white}
+        .fi:focus{border-color:#A8B5A0}
+        .login-btn{width:100%;padding:.85rem;background:#2C2C2C;color:white;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;transition:all .3s;font-family:inherit;margin-top:.5rem}
+        .login-btn:hover{background:#444}
+        .login-btn:disabled{background:#999;cursor:not-allowed}
+        .login-error{color:#ff6b6b;font-size:.85rem;min-height:1.5rem;margin-top:.5rem}
+        .login-spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        /* Layout */
+        .admin-layout{display:flex;min-height:100vh}
+        .admin-sidebar{width:260px;background:white;border-right:1px solid #eee;padding:1.5rem 0;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+        .sidebar-brand{padding:0 1.5rem 1.5rem;border-bottom:1px solid #eee;margin-bottom:.5rem}
+        .sidebar-brand h2{font-family:'Playfair Display',serif;font-size:1.3rem;color:#2C2C2C}
+        .sidebar-brand span{font-size:.72rem;color:#A8B5A0;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+        .sidebar-nav{flex:1;overflow-y:auto}
+        .sidebar-nav a{display:flex;align-items:center;gap:.7rem;padding:.6rem 1.5rem;color:#666;text-decoration:none;font-size:.85rem;font-weight:500;transition:all .2s;border-left:3px solid transparent}
+        .sidebar-nav a:hover{color:#2C2C2C;background:#fafafa}
+        .sidebar-nav a.active{color:#A8B5A0;border-left-color:#A8B5A0;background:rgba(168,181,160,.05)}
+        .sidebar-nav a svg{width:16px;height:16px;stroke:currentColor;stroke-width:1.5;fill:none;flex-shrink:0}
+        .sidebar-logout{padding:1rem 1.5rem;border-top:1px solid #eee}
+        .sidebar-logout .admin-email{font-size:.78rem;color:#999;margin-bottom:.5rem}
+        .sidebar-logout button{width:100%;padding:.6rem;background:none;border:1px solid #ddd;border-radius:8px;color:#666;font-size:.85rem;cursor:pointer;font-family:inherit;transition:all .2s}
+        .sidebar-logout button:hover{border-color:#ff6b6b;color:#ff6b6b}
+        .admin-main{flex:1;margin-left:260px;padding:2rem}
+        .admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;flex-wrap:wrap;gap:1rem}
+        .admin-header h1{font-family:'Playfair Display',serif;font-size:1.75rem}
+        /* Stats */
+        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;margin-bottom:2rem}
+        .stat-card{background:white;padding:1.25rem;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+        .stat-label{font-size:.75rem;color:#999;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.2rem}
+        .stat-value{font-size:1.5rem;font-weight:700;color:#2C2C2C}
+        .stat-value.sage{color:#A8B5A0}
+        /* Card + Table */
+        .admin-card{background:white;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.04);overflow:hidden;margin-bottom:2rem}
+        .admin-card-header{padding:1.1rem 1.5rem;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem}
+        .admin-card-header h2{font-family:'Playfair Display',serif;font-size:1.15rem}
+        .admin-table{width:100%;border-collapse:collapse}
+        .admin-table th{text-align:left;padding:.65rem 1.1rem;font-size:.75rem;color:#999;text-transform:uppercase;letter-spacing:.05em;font-weight:600;border-bottom:1px solid #eee;background:#fafafa}
+        .admin-table td{padding:.75rem 1.1rem;font-size:.88rem;border-bottom:1px solid #f5f5f5;vertical-align:middle}
+        .admin-table tr:hover td{background:#fafafa}
+        .admin-table .product-thumb{width:40px;height:40px;border-radius:8px;object-fit:cover;background:#eee;border:1px solid #eee;flex-shrink:0}
+        .empty-td{text-align:center;color:#999;padding:2rem}
+        .empty-state{text-align:center;padding:3rem 2rem;color:#999}
+        .empty-state svg{width:48px;height:48px;stroke:#ddd;fill:none;margin-bottom:1rem}
+        /* Buttons */
+        .btn-sm{padding:.35rem .75rem;border-radius:8px;font-size:.82rem;font-family:inherit;cursor:pointer;transition:all .2s;border:1px solid #ddd;background:white;color:#666;display:inline-block}
+        .btn-sm:hover{border-color:#999;color:#2C2C2C}
+        .btn-sm.primary{background:#A8B5A0;color:white;border-color:#A8B5A0}
+        .btn-sm.primary:hover{background:#96a388}
+        .btn-sm.danger{color:#ff6b6b;border-color:#ffcccc}
+        .btn-sm.danger:hover{background:#ff6b6b;color:white;border-color:#ff6b6b}
+        .action-btns{display:flex;gap:.35rem;flex-wrap:wrap}
+        /* Status */
+        .status-badge{display:inline-block;padding:.2rem .65rem;border-radius:20px;font-size:.78rem;font-weight:600}
+        .status-pending{background:#fff3cd;color:#856404}
+        .status-processing{background:#d1ecf1;color:#0c5460}
+        .status-shipped{background:#d4edda;color:#155724}
+        .status-delivered{background:#A8B5A0;color:white}
+        .status-cancelled{background:#f8d7da;color:#721c24}
+        .status-select{padding:.35rem .5rem;border:1px solid #ddd;border-radius:6px;font-size:.82rem;font-family:inherit;cursor:pointer;background:white}
+        .status-select:focus{outline:none;border-color:#A8B5A0}
+        .text-red{color:#ff6b6b;font-weight:600}
+        /* Tab content */
+        .tab-content{display:none}.tab-content.active{display:block}
+        /* Modal */
+        .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:flex-start;justify-content:center;padding:2rem;overflow-y:auto}
+        .modal-box{background:white;border-radius:16px;padding:2rem;max-width:680px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.15);margin:1rem 0}
+        .modal-box h2{font-family:'Playfair Display',serif;font-size:1.3rem;margin-bottom:1.5rem}
+        .modal-actions{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem}
+        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+        .form-grid .full{grid-column:1/-1}
+        .fg{margin-bottom:1.1rem}
+        .fl{display:block;font-size:.83rem;font-weight:500;color:#555;margin-bottom:.3rem}
+        .fi{width:100%;padding:.65rem .85rem;border:1.5px solid #E8E5E0;border-radius:10px;font-size:.9rem;font-family:inherit;outline:none;transition:border .3s;color:#2C2C2C;background:white}
+        .fi:focus{border-color:#A8B5A0}
+        textarea.fi{resize:vertical;min-height:80px}
+        .checkbox-label{display:flex;align-items:center;gap:.5rem;font-size:.9rem;cursor:pointer}
+        .checkbox-label input{width:16px;height:16px;accent-color:#A8B5A0}
+        /* Image upload */
+        .img-preview-container{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.75rem}
+        .img-preview-item{position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;border:1px solid #eee}
+        .img-preview-item img{width:100%;height:100%;object-fit:cover}
+        .img-remove-btn{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+        /* Inline forms */
+        .inline-form{background:#f8f9fa;padding:1.25rem;border-radius:12px;margin-bottom:1.5rem}
+        .inline-form h3{font-family:'Playfair Display',serif;font-size:1.05rem;margin-bottom:1rem}
+        .inline-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;align-items:end}
+        .inline-grid .btn-wrap{display:flex;gap:.5rem}
+        .stock-input{width:80px;padding:.3rem .5rem;border:1px solid #ddd;border-radius:6px;font-family:inherit;font-size:.88rem}
+        /* Toast */
+        .admin-toast{position:fixed;bottom:2rem;right:2rem;background:#2C2C2C;color:white;padding:.85rem 1.5rem;border-radius:10px;font-size:.9rem;z-index:9999;transform:translateY(100px);opacity:0;transition:all .3s ease;max-width:350px}
+        .admin-toast.show{transform:translateY(0);opacity:1}
+        .admin-toast.success{background:#155724}
+        .admin-toast.error{background:#721c24}
+        .admin-toast.info{background:#0c5460}
+        /* Responsive */
+        @media(max-width:768px){
+            .admin-sidebar{transform:translateX(-100%);transition:transform .3s;z-index:200}
+            .admin-sidebar.open{transform:translateX(0)}
+            .admin-main{margin-left:0;padding:1rem}
+            .mobile-toggle{display:flex!important}
+            .admin-table{font-size:.78rem}
+            .admin-table th,.admin-table td{padding:.5rem .6rem}
+            .stats-grid{grid-template-columns:1fr 1fr}
+            .form-grid{grid-template-columns:1fr}
+            .inline-grid{grid-template-columns:1fr}
+        }
+        .mobile-toggle{display:none;background:#A8B5A0;color:white;border:none;width:40px;height:40px;border-radius:8px;cursor:pointer;align-items:center;justify-content:center;flex-shrink:0}
+    </style>
+</head>
+<body>
+
+<!-- ==================== A VERIFICAR SESSÃO ====================
+     O login é feito sempre por auth.html (tela única para clientes e
+     administradores). Esta secção só aparece por instantes enquanto o
+     Firebase confirma se há sessão ativa e se é admin; caso contrário,
+     o utilizador é redirecionado para auth.html (ver admin-app.js). -->
+<div class="login-screen" id="loginScreen">
+    <div class="login-card">
+        <div class="login-icon"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg></div>
+        <h1>AODA Admin</h1>
+        <p>A verificar sessão…</p>
+        <div class="login-spinner" style="width:28px;height:28px;border-color:rgba(44,44,44,.15);border-top-color:#2C2C2C;margin:0 auto"></div>
+        <div id="loginError" style="color:#ff6b6b;font-size:.85rem;margin-top:1rem"></div>
+    </div>
+</div>
+
+<!-- ==================== DASHBOARD ==================== -->
+<div class="admin-layout" id="adminDashboard" style="display:none">
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="sidebar-brand"><h2>AODA Store</h2><span>Painel Admin</span></div>
+        <nav class="sidebar-nav">
+            <a href="#" class="active" data-tab="dashboard" onclick="AdminApp.switchTab('dashboard',this)"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+            <a href="#" data-tab="orders" onclick="AdminApp.switchTab('orders',this)"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Encomendas</a>
+            <a href="#" data-tab="products" onclick="AdminApp.switchTab('products',this)"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>Produtos</a>
+            <a href="#" data-tab="customers" onclick="AdminApp.switchTab('customers',this)"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Clientes</a>
+            <a href="#" data-tab="users" onclick="AdminApp.switchTab('users',this)"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>Utilizadores</a>
+            <a href="#" data-tab="categories" onclick="AdminApp.switchTab('categories',this)"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>Categorias</a>
+            <a href="#" data-tab="brands" onclick="AdminApp.switchTab('brands',this)"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>Marcas</a>
+            <a href="#" data-tab="promotions" onclick="AdminApp.switchTab('promotions',this)"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/></svg>Promoções</a>
+            <a href="#" data-tab="stock" onclick="AdminApp.switchTab('stock',this)"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Stock</a>
+            <a href="#" data-tab="banners" onclick="AdminApp.switchTab('banners',this)"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Banners</a>
+            <a href="#" data-tab="reviews" onclick="AdminApp.switchTab('reviews',this)"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Avaliações</a>
+            <a href="#" data-tab="contacts" onclick="AdminApp.switchTab('contacts',this)"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Contactos</a>
+            <a href="#" data-tab="settings" onclick="AdminApp.switchTab('settings',this)"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Configurações</a>
+            <a href="#" data-tab="newsletter" onclick="AdminApp.switchTab('newsletter',this)"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Newsletter</a>
+        </nav>
+        <div class="sidebar-logout">
+            <div class="admin-email" id="adminEmailDisplay"></div>
+            <button onclick="AdminApp.handleLogout()">Sair do Painel</button>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <div class="admin-header">
+            <div style="display:flex;align-items:center;gap:1rem">
+                <button class="mobile-toggle" onclick="document.getElementById('adminSidebar').classList.toggle('open')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+                <h1 id="pageTitle">Dashboard</h1>
+            </div>
+            <div style="display:flex;gap:.5rem"><button onclick="AdminApp.loadAll()" class="btn-sm primary">Atualizar Tudo</button></div>
+        </div>
+
+        <!-- ===== TAB: DASHBOARD ===== -->
+        <div class="tab-content active" id="tab-dashboard">
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-label">Clientes</div><div class="stat-value" id="statCustomers">0</div></div>
+                <div class="stat-card"><div class="stat-label">Encomendas</div><div class="stat-value" id="statOrders">0</div></div>
+                <div class="stat-card"><div class="stat-label">Produtos</div><div class="stat-value" id="statProducts">0</div></div>
+                <div class="stat-card"><div class="stat-label">Receita Total</div><div class="stat-value sage" id="statRevenue">0 Kz</div></div>
+                <div class="stat-card"><div class="stat-label">Stock Baixo</div><div class="stat-value" style="color:#ff6b6b" id="statLowStock">0</div></div>
+                <div class="stat-card"><div class="stat-label">Pendentes</div><div class="stat-value sage" id="statPending">0</div></div>
+            </div>
+            <div class="admin-card">
+                <div class="admin-card-header"><h2>Últimas Encomendas</h2></div>
+                <table class="admin-table"><thead><tr><th>N.º</th><th>Cliente</th><th>Valor</th><th>Estado</th><th>Data</th></tr></thead>
+                <tbody id="recentOrdersBody"><tr><td colspan="5" class="empty-td">A carregar...</td></tr></tbody></table>
+            </div>
+        </div>
+
+        <!-- ===== TAB: ENCOMENDAS ===== -->
+        <div class="tab-content" id="tab-orders">
+            <div class="stats-grid" id="ordersStats"></div>
+            <div class="admin-card"><div class="admin-card-header"><h2>Todas as Encomendas</h2></div>
+                <div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>N.º</th><th>Cliente</th><th>Telefone</th><th>Itens</th><th>Total</th><th>Pagamento</th><th>Estado</th><th>Data</th><th>Ações</th></tr></thead>
+                <tbody id="ordersTableBody"><tr><td colspan="9" class="empty-td">A carregar...</td></tr></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- ===== TAB: PRODUTOS ===== -->
+        <div class="tab-content" id="tab-products">
+            <div class="stats-grid" id="productsStats"></div>
+            <div class="admin-card"><div class="admin-card-header"><h2>Gestão de Produtos</h2><div style="display:flex;gap:.5rem"><button onclick="AdminApp.syncProducts()" class="btn-sm">Sincronizar</button><button onclick="AdminApp.openProductModal()" class="btn-sm primary">+ Novo Produto</button></div></div>
+                <div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Imagem</th><th>Produto</th><th>Marca</th><th>Preço</th><th>Stock</th><th>Estado</th><th>Ações</th></tr></thead>
+                <tbody id="productsTableBody"><tr><td colspan="7" class="empty-td">A carregar...</td></tr></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- ===== TAB: CLIENTES ===== -->
+        <div class="tab-content" id="tab-customers">
+            <div class="admin-card"><div class="admin-card-header"><h2>Clientes Registados</h2></div>
+                <div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Registo</th><th>Último Acesso</th><th>Tipo</th></tr></thead>
+                <tbody id="customersTableBody"><tr><td colspan="6" class="empty-td">A carregar...</td></tr></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- ===== TAB: UTILIZADORES ===== -->
+        <div class="tab-content" id="tab-users">
+            <div class="admin-card"><div class="admin-card-header"><h2>Gestão de Utilizadores e Administradores</h2></div>
+                <div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Nome</th><th>E-mail</th><th>Role</th><th>Registo</th><th>Ações</th></tr></thead>
+                <tbody id="usersTableBody"><tr><td colspan="5" class="empty-td">A carregar...</td></tr></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- ===== TAB: CATEGORIAS ===== -->
+        <div class="tab-content" id="tab-categories">
+            <div class="inline-form">
+                <h3>Nova Categoria</h3>
+                <form id="categoryForm" onsubmit="AdminApp.handleAddCategory(event)" class="inline-grid">
+                    <div class="fg"><label class="fl">Nome</label><input type="text" class="fi" id="catName" required></div>
+                    <div class="fg"><label class="fl">Descrição</label><input type="text" class="fi" id="catDesc"></div>
+                    <div class="btn-wrap"><button type="submit" class="btn-sm primary" style="height:38px">Adicionar</button></div>
+                </form>
+            </div>
+            <div class="admin-card"><div class="admin-card-header"><h2>Categorias</h2></div>
+                <div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Nome</th><th>Descrição</th><th>Produtos</th><th>Ações</th></tr></thead>
+                <tbody id="categoriesTableBody"><tr><td colspan="4" class="empty-td">A carregar...</td></tr></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- ===== TAB: MARCAS ===== -->
+        <div class="tab-content" id="tab-brands">
+            <div class="inline-form">
+                <h3>Nova Marca</h3>
+                <form id="brandForm" onsubmit="AdminApp.handleAddBrand(event)" class="inline-grid">
+                    <div class="fg"><label class="fl">Nome</label><input type="text" class="fi" id="brandName" required></div>
+                    <div class="fg"><label class="fl">Descrição</label><input type="text" class="fi" id="brandDesc"></div>
+                    <div class="btn-wrap"><button type="submit" class="btn-sm primary" style="height:38px">Adicionar</button></div>
+                </form>
+            </div>
+            <div class="admin-card"><div class="admin-card-header"><h2>Marcas</h2></div>
+                <div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Nome</th><th>Descrição</th><th>Produtos</th><th>Ações</th></tr></thead>
+                <tbody id="brandsTableBody"><tr><td colspan="4" class="empty-td">A carregar...</td></tr></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- ===== TAB: PROMOÇÕES ===== -->
+        <div class="tab-content" id="tab-promotions">
+            <div class="inline-form">
+                <h3>Novo Cupão</h3>
+                <form id="couponForm" onsubmit="AdminApp.handleAddCoupon(event)">
+                    <div class="inline-grid" style="margin-bottom:.75rem">
+                        <div class="fg"><label class="fl">Código</label><input type="text" class="fi" id="coupCode" placeholder="EXEMPLO10" required></div>
+                        <div class="fg"><label class="fl">Tipo</label><select class="fi" id="coupType"><option value="percentage">Percentagem (%)</option><option value="fixed">Valor Fixo (Kz)</option></select></div>
+                        <div class="fg"><label class="fl">Valor</label><input type="number" class="fi" id="coupValue" required min="0"></div>
+                    </div>
+                    <div class="inline-grid">
+                        <div class="fg"><label class="fl">Descrição</label><input type="text" class="fi" id="coupDesc" placeholder="Desconto de verão"></div>
+                        <div class="fg"><label class="fl">Compra Mínima (Kz)</label><input type="number" class="fi" id="coupMin" min="0"></div>
+                        <div class="fg"><label class="fl">Usos Máximos</label><input type="number" class="fi" id="coupMaxUses" min="0"></div>
+                        <div class="fg"><label class="fl">Válido Até</label><input type="date" class="fi" id="coupExpiry"></div>
+                        <div class="btn-wrap"><button type="submit" class="btn-sm primary" style="height:38px">Criar Cupão</button></div>
+                    </div>
+                </form>
+            </div>
+            <div class="admin-card"><div class="admin-card-header"><h2>Cupões e Promoções</h2></div>
+                <div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Código</th><th>Desconto</th><th>Descrição</th><th>Compra Mín.</th><th>Estado</th><th>Ações</th></tr></thead>
+                <tbody id="promotionsTableBody"><tr><td colspan="6" class="empty-td">A carregar...</td></tr></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- ===== TAB: STOCK ===== -->
+        <div class="tab-content" id="tab-stock">
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-label">Stock Baixo (&lt;5)</div><div class="stat-value" style="color:#ff6b6b" id="lowStockCount">0</div></div>
+                <div class="stat-card"><div class="stat-label">Sem Stock</div><div class="stat-value" style="color:#ff6b6b" id="outOfStockCount">0</div></div>
+            </div>
+            <div class="admin-card"><div class="admin-card-header"><h2>Alertas de Stock</h2></div>
+                <div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Produto</th><th>SKU</th><th>Stock Atual</th><th>Atualizar</th></tr></thead>
+                <tbody id="stockTableBody"><tr><td colspan="4" class="empty-td">A carregar...</td></tr></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- ===== TAB: BANNERS ===== -->
+        <div class="tab-content" id="tab-banners">
+            <div class="inline-form">
+                <h3>Novo Banner</h3>
+                <form id="bannerForm" onsubmit="AdminApp.handleAddBanner(event)">
+                    <div class="inline-grid" style="margin-bottom:.75rem">
+                        <div class="fg"><label class="fl">Título</label><input type="text" class="fi" id="banTitle"></div>
+                        <div class="fg"><label class="fl">Link</label><input type="url" class="fi" id="banLink" placeholder="https://..."></div>
+                        <div class="fg"><label class="fl">Posição</label><select class="fi" id="banPosition"><option value="hero">Hero Principal</option><option value="homepage">Homepage</option><option value="promo">Promoção</option></select></div>
+                        <div class="fg"><label class="fl">Ordem</label><input type="number" class="fi" id="banOrder" value="0" min="0"></div>
+                    </div>
+                    <div class="fg"><label class="fl">Imagem</label><input type="file" accept="image/*" class="fi" onchange="AdminApp.handleBannerImage(this)" style="padding:.4rem"><img id="bannerPreview" style="display:none;max-height:100px;margin-top:.5rem;border-radius:8px"></div>
+                    <div style="margin-top:.75rem"><button type="submit" class="btn-sm primary">Adicionar Banner</button></div>
+                </form>
+            </div>
+            <div class="admin-card"><div class="admin-card-header"><h2>Banners</h2></div>
+                <div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Imagem</th><th>Título</th><th>Link</th><th>Posição</th><th>Ações</th></tr></thead>
+                <tbody id="bannersTableBody"><tr><td colspan="5" class="empty-td">A carregar...</td></tr></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- ===== TAB: AVALIAÇÕES ===== -->
+        <div class="tab-content" id="tab-reviews">
+            <div class="admin-card"><div class="admin-card-header"><h2>Avaliações de Clientes</h2></div>
+                <div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Utilizador</th><th>Produto</th><th>Classificação</th><th>Comentário</th><th>Estado</th><th>Ações</th></tr></thead>
+                <tbody id="reviewsTableBody"><tr><td colspan="6" class="empty-td">A carregar...</td></tr></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- ===== TAB: CONTACTOS ===== -->
+        <div class="tab-content" id="tab-contacts">
+            <div class="admin-card"><div class="admin-card-header"><h2>Mensagens de Contacto</h2></div>
+                <div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Nome</th><th>E-mail</th><th>Mensagem</th><th>Estado</th><th>Data</th><th>Ações</th></tr></thead>
+                <tbody id="contactsTableBody"><tr><td colspan="6" class="empty-td">A carregar...</td></tr></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- ===== TAB: CONFIGURAÇÕES ===== -->
+        <div class="tab-content" id="tab-settings">
+            <div class="admin-card">
+                <div class="admin-card-header"><h2>Configurações da Loja</h2></div>
+                <form id="settingsForm" onsubmit="AdminApp.handleSaveSettings(event)" style="padding:1.5rem">
+                    <div class="form-grid">
+                        <div class="fg"><label class="fl">Nome da Loja</label><input type="text" class="fi" id="setName"></div>
+                        <div class="fg"><label class="fl">E-mail</label><input type="email" class="fi" id="setEmail"></div>
+                        <div class="fg"><label class="fl">Telefone</label><input type="tel" class="fi" id="setPhone"></div>
+                        <div class="fg"><label class="fl">Moeda</label><select class="fi" id="setCurrency"><option value="AOA">AOA (Kwanza)</option><option value="USD">USD (Dólar)</option><option value="EUR">EUR (Euro)</option></select></div>
+                        <div class="fg"><label class="fl">IVA (%)</label><input type="number" class="fi" id="setVat" step="0.1" min="0"></div>
+                        <div class="fg"><label class="fl">Instagram</label><input type="text" class="fi" id="setInstagram" placeholder="@aodastore"></div>
+                        <div class="fg"><label class="fl">Facebook</label><input type="text" class="fi" id="setFacebook"></div>
+                        <div class="fg full"><label class="fl">Morada</label><input type="text" class="fi" id="setAddress"></div>
+                        <div class="fg full"><label class="fl">Política de Devoluções</label><textarea class="fi" id="setPolicy" rows="4"></textarea></div>
+                    </div>
+                    <div style="margin-top:1rem"><button type="submit" class="btn-sm primary" style="padding:.6rem 1.5rem">Guardar Configurações</button></div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ===== TAB: NEWSLETTER ===== -->
+        <div class="tab-content" id="tab-newsletter">
+            <div class="stats-grid"><div class="stat-card"><div class="stat-label">Total Subscritores</div><div class="stat-value sage" id="newsletterCount">0</div></div></div>
+            <div class="admin-card"><div class="admin-card-header"><h2>Subscritores</h2></div>
+                <div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>E-mail</th><th>Data</th></tr></thead>
+                <tbody id="newsletterTableBody"><tr><td colspan="2" class="empty-td">A carregar...</td></tr></tbody></table></div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- ==================== MODAL: PRODUTO ==================== -->
+<div class="modal-overlay" id="productModal" style="display:none" onclick="if(event.target===this)AdminApp.closeProductModal()">
+    <div class="modal-box">
+        <h2 id="productModalTitle">Novo Produto</h2>
+        <form id="productForm" onsubmit="AdminApp.handleProductSubmit(event)">
+            <div class="form-grid">
+                <div class="fg"><label class="fl">Nome *</label><input type="text" class="fi" id="pName" required></div>
+                <div class="fg"><label class="fl">Marca</label><input type="text" class="fi" id="pBrand"></div>
+                <div class="fg"><label class="fl">Categoria</label><input type="text" class="fi" id="pCategory"></div>
+                <div class="fg"><label class="fl">SKU</label><input type="text" class="fi" id="pSku"></div>
+                <div class="fg"><label class="fl">Preço (Kz) *</label><input type="number" class="fi" id="pPrice" required min="0"></div>
+                <div class="fg"><label class="fl">Preço Promocional (Kz)</label><input type="number" class="fi" id="pSalePrice" min="0"></div>
+                <div class="fg"><label class="fl">Stock *</label><input type="number" class="fi" id="pStock" required min="0"></div>
+                <div class="fg"><label class="fl">Cor</label><input type="text" class="fi" id="pColor"></div>
+                <div class="fg"><label class="fl">Tamanhos (separados por vírgula)</label><input type="text" class="fi" id="pSizes" placeholder="P, M, G, GG"></div>
+                <div class="fg"><label class="fl">Peso (kg)</label><input type="number" class="fi" id="pWeight" step="0.1" min="0"></div>
+                <div class="fg full"><label class="fl">Descrição</label><textarea class="fi" id="pDescription" rows="3"></textarea></div>
+                <div class="fg full">
+                    <label class="fl">Imagens</label>
+                    <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;margin-bottom:.5rem">
+                        <input type="file" accept="image/*" multiple onchange="Array.from(this.files).forEach(function(f){var inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.files=new FileList([f]);AdminApp.addImageToProduct(inp)})" style="font-size:.85rem">
+                    </div>
+                    <div style="display:flex;gap:.5rem;margin-bottom:.75rem">
+                        <input type="url" class="fi" id="pImageUrl" placeholder="https://... ou URL da imagem" style="flex:1">
+                        <button type="button" class="btn-sm" onclick="AdminApp.addImageUrlToProduct()">Adicionar URL</button>
+                    </div>
+                    <div class="img-preview-container" id="imagePreviewContainer"></div>
+                </div>
+                <div class="fg full" style="display:flex;gap:1.5rem">
+                    <label class="checkbox-label"><input type="checkbox" id="pFeatured"> Produto em destaque</label>
+                    <label class="checkbox-label"><input type="checkbox" id="pActive" checked> Ativo</label>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-sm" onclick="AdminApp.closeProductModal()">Cancelar</button>
+                <button type="submit" class="btn-sm primary" id="productSubmitBtn">Adicionar Produto</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="admin-toast" id="adminToast"></div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="auth-service.js"></script>
+<script src="app-backend.js"></script>
+<script src="admin-app.js"></script>
+<script>
+    // Inicializar variável storage (Firebase Storage) se disponível
+    try { var storage = firebase.storage(); } catch(e) { var storage = null; }
+    // Inicializar app
+    document.addEventListener('DOMContentLoaded', function() { AdminApp.init(); });
+</script>
+<script src="shared-ux.js"></script>
+<script>document.addEventListener('DOMContentLoaded',function(){SharedUX.initImageFallbacks()})</script>
+<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("./sw.js")}</script>
+</body>
+</html>

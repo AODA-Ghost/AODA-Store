@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Conta - AODA Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS — em produção, substituir pelo build local: npx tailwindcss -o tailwind.min.css -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { 'warm-white':'#FEFCF8','oat':'#F5F1E8','fog-gray':'#E8E5E0','charcoal':'#2C2C2C','sage':'A8B5A0' }, fontFamily: { 'display':['Playfair Display','serif'],'body':['DM Sans','sans-serif'] } } } }
+    </script>
+        <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="resources/favicon.svg">
+        <!-- Substituir estas 2 linhas pelas 2 linhas abaixo -->
+    <script src="main.js" defer></script>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,#FEFCF8 0%,#F5F1E8 100%);color:#2C2C2C;line-height:1.6;}
+        .navbar{position:fixed;top:0;width:100%;background:rgba(254,252,248,0.95);backdrop-filter:blur(20px);z-index:1000;transition:all 0.3s ease;}
+        .nav-link{position:relative;transition:color 0.3s ease;text-decoration:none;}
+        .nav-link:hover{color:#A8B5A0;}
+        .nav-link::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;background:#A8B5A0;transition:width 0.3s ease;}
+        .nav-link:hover::after{width:100%;}
+        .cart-counter{position:absolute;top:-8px;right:-8px;background:#A8B5A0;color:white;border-radius:50%;width:20px;height:20px;font-size:12px;display:flex;align-items:center;justify-content:center;}
+        .page-header{padding:8rem 0 4rem;text-align:center;background:linear-gradient(135deg,#F5F1E8 0%,#E8E5E0 100%);}
+        .page-title{font-family:'Playfair Display',serif;font-size:3rem;margin-bottom:0.5rem;color:#2C2C2C;}
+        .page-subtitle{font-size:1rem;color:#666;}
+        .account-main{max-width:800px;margin:0 auto;padding:2rem 2rem 6rem;}
+        .account-card{background:white;border-radius:20px;padding:2rem;margin-bottom:2rem;box-shadow:0 4px 15px rgba(0,0,0,0.06);}
+        .account-card h2{font-family:'Playfair Display',serif;font-size:1.3rem;margin-bottom:1.5rem;color:#2C2C2C;display:flex;align-items:center;gap:0.75rem;}
+        .account-card h2 svg{width:22px;height:22px;stroke:#A8B5A0;fill:none;stroke-width:1.5;}
+        .info-row{display:flex;justify-content:space-between;align-items:center;padding:0.75rem 0;border-bottom:1px solid #f5f5f5;}
+        .info-row:last-child{border-bottom:none;}
+        .info-label{font-size:0.85rem;color:#999;}
+        .info-value{font-weight:500;font-size:0.95rem;}
+        .info-value.not-set{color:#ccc;font-weight:400;}
+        .info-value a{color:#A8B5A0;text-decoration:none;}
+        .info-value a:hover{text-decoration:underline;}
+        .edit-input{padding:0.5rem 0.75rem;border:1px solid #E8E5E0;border-radius:8px;font-family:inherit;font-size:0.95rem;outline:none;width:200px;text-align:right;transition:border 0.3s;}
+        .edit-input:focus{border-color:#A8B5A0;}
+        .edit-actions{display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1rem;}
+        .btn-save{background:#A8B5A0;color:white;border:none;padding:0.5rem 1.5rem;border-radius:8px;cursor:pointer;font-family:inherit;font-size:0.9rem;transition:all 0.3s;}
+        .btn-save:hover{background:#96a388;}
+        .btn-cancel{background:none;border:1px solid #ddd;color:#666;padding:0.5rem 1rem;border-radius:8px;cursor:pointer;font-family:inherit;font-size:0.9rem;transition:all 0.3s;}
+        .btn-cancel:hover{border-color:#999;}
+        .btn-danger{background:none;border:1px solid #ff6b6b;color:#ff6b6b;padding:0.5rem 1rem;border-radius:8px;cursor:pointer;font-family:inherit;font-size:0.85rem;transition:all 0.3s;margin-top:1.5rem;width:100%;}
+        .btn-danger:hover{background:#ff6b6b;color:white;}
+        /* Orders */
+        .order-item{background:#FAFAFA;border-radius:12px;padding:1.25rem;margin-bottom:1rem;display:grid;grid-template-columns:auto 1fr auto;gap:1rem;align-items:center;}
+        .order-id{font-weight:600;font-size:0.95rem;color:#2C2C2C;}
+        .order-date{font-size:0.8rem;color:#999;}
+        .order-total{font-weight:600;color:#A8B5A0;font-size:1rem;}
+        .order-status{padding:0.25rem 0.75rem;border-radius:20px;font-size:0.8rem;font-weight:600;display:inline-block;}
+        .status-pending{background:#fff3cd;color:#856404;}
+        .status-processing{background:#d1ecf1;color:#0c5460;}
+        .status-shipped{background:#d4edda;color:#155724;}
+        .status-delivered{background:#A8B5A0;color:white;}
+        .status-cancelled{background:#f8d7da;color:#721c24;}
+        .order-items{font-size:0.85rem;color:#888;margin-top:0.5rem;}
+        .empty-orders{text-align:center;padding:3rem;color:#999;}
+        .empty-orders svg{width:48px;height:48px;stroke:#ddd;fill:none;margin:0 auto 1rem;}
+        .logout-section{text-align:center;margin-top:3rem;padding:2rem;background:white;border-radius:20px;box-shadow:0 4px 15px rgba(0,0,0,0.06);}
+        .footer{background:#1a1a1a;color:white;padding:2rem 0;text-align:center;}
+        .footer p{opacity:0.7;font-size:0.9rem;}
+        @media(max-width:768px){.page-title{font-size:2.2rem;}.account-card{padding:1.5rem;}.order-item{grid-template-columns:1fr;gap:0.5rem;}.edit-input{width:100%;text-align:left;margin-top:0.35rem;}.info-row{flex-direction:column;align-items:flex-start;gap:0.2rem;}}
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="index.html" class="text-2xl font-display font-medium text-charcoal" style="text-decoration:none;color:#2C2C2C;">AODA Store</a>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="index.html" class="nav-link text-charcoal hover:text-sage px-3 py-2 text-sm font-medium">Início</a>
+                        <a href="products.html" class="nav-link text-charcoal hover:text-sage px-3 py-2 text-sm font-medium">Produtos</a>
+                        <a href="cart.html" class="nav-link text-charcoal hover:text-sage px-3 py-2 text-sm font-medium relative">Carrinho<span class="cart-counter" style="display:none;">0</span></a>
+                        <a href="account.html" class="nav-link text-sage px-3 py-2 text-sm font-medium">Conta</a>
+                    </div>
+                </div>
+                <div class="md:hidden"><button class="text-charcoal hover:text-sage"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button></div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="page-header">
+        <div class="container mx-auto px-4">
+            <h1 class="page-title">Minha Conta</h1>
+            <p class="page-subtitle">Gerir os teus dados e ver o histórico de encomendas</p>
+        </section>
+
+    <div class="account-main" id="accountContent">
+        <!-- Conteúdo preenchido pelo JS -->
+        <div style="text-align:center;padding:4rem 2rem;color:#999;">
+            <div style="width:40px;height:40px;border:3px solid #E8E5E0;border-top-color:#A8B5A0;border-radius:50%;margin:0 auto 1rem;animation:spin 1s linear infinite;"></div>
+            <p>A carregar...</p>
+            <style>@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}</style>
+        </div>
+    </div>
+
+    <footer class="footer"><div class="container mx-auto px-4"><p>&copy; 2026 AODA Store. Todos os direitos reservados.</p></div></footer>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth-service.js"></script>
+
+    <script>
+        var currentEditField = null;
+
+        async function loadAccount() {
+            // Nota: já sabemos que há sessão neste ponto — quem chama esta
+            // função (auth.onAuthStateChanged, no fim do ficheiro) só o faz
+            // depois do Firebase confirmar a sessão guardada. Não usamos
+            // AuthService.getCurrentUser() aqui sozinho porque essa leitura
+            // é síncrona (auth.currentUser) e, ao abrir/atualizar a página
+            // diretamente, ainda pode estar vazia por um instante — o que
+            // expulsaria incorretamente um cliente com sessão válida.
+            var user = AuthService.getCurrentUser();
+            if (!user) return; // segurança extra, não deve acontecer aqui
+
+            // Buscar dados extra do Firestore
+            var userData = await AuthService.getUserData(user.uid);
+
+            var container = document.getElementById('accountContent');
+            var statusLabels = {
+                'pending': 'Pendente',
+                'processing': 'A processar',
+                'shipped': 'Enviado',
+                'delivered': 'Entregue',
+                'cancelled': 'Cancelado'
+            };
+
+            container.innerHTML =
+
+                // Perfil
+                '<div class="account-card">' +
+                    '<h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Informações Pessoais</h2>' +
+                    '<div class="info-row"><span class="info-label">Nome</span><span class="info-value" id="displayName">' + (user.name || '—') + '</span></div>' +
+                    '<div class="info-row"><span class="info-label">E-mail</span><span class="info-value">' + user.email + '</span></div>' +
+                    '<div class="info-row"><span class="info-label">Telefone</span><span class="info-value ' + (userData?.phone ? '' : 'not-set') + '" id="displayPhone">' + (userData?.phone || 'Não definido') + '</span></div>' +
+                    '<div class="info-row"><span class="info-label">Verificação</span><span class="info-value ' + (user.emailVerified ? '' : 'not-set') + '">' + (user.emailVerified ? '✓ Verificado' : '⚠ Não verificado') + '</span></div>' +
+                '</div>' +
+
+                // Histórico de encomendas
+                '<div class="account-card">' +
+                    '<h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg> Histórico de Encomendas</h2>' +
+                    '<div id="ordersList"><div class="empty-orders"><p>A carregar...</p></div></div>' +
+                '</div>' +
+
+                // Logout
+                '<div class="logout-section">' +
+                    '<p style="color:#666;margin-bottom:1rem;font-size:0.9rem;">Ao saires, perdes o acesso ao teu histórico de encomendas.</p>' +
+                    '<button class="btn-danger" onclick="handleLogout()">Terminar Sessão</button>' +
+                '</div>';
+
+            // Carregar encomendas
+            loadUserOrders(user.uid, statusLabels);
+        }
+
+        async function loadUserOrders(uid, statusLabels) {
+            var listEl = document.getElementById('ordersList');
+
+            try {
+                var snapshot = await db.collection('orders')
+                    .where('userId', '==', uid)
+                    .orderBy('createdAt', 'desc')
+                    .limit(20)
+                    .get();
+
+                if (snapshot.empty) {
+                    listEl.innerHTML = '<div class="empty-orders"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><p>Nenhuma encomenda ainda</p><a href="products.html" style="color:#A8B5A0;text-decoration:none;font-weight:500;margin-top:0.5rem;display:inline-block;">Ver Produtos</a></div>';
+                    return;
+                }
+
+                listEl.innerHTML = snapshot.docs.map(function(doc) {
+                    var o = doc.data();
+                    var date = o.createdAt ? o.createdAt.toDate().toLocaleDateString('pt-AO', {day:'2-digit',month:'short',year:'numeric'}) : '-';
+                    var statusClass = 'status-' + (o.status || 'pending');
+                    var statusText = statusLabels[o.status] || o.status;
+
+                    var itemsText = '';
+                    if (o.items && o.items.length > 0) {
+                        itemsText = o.items.map(function(i) {
+                            return i.qty + 'x ' + i.name + ' (' + i.size + ')';
+                        }).join(', ');
+                    }
+
+                    return '<div class="order-item">' +
+                        '<div><div class="order-id">' + o.id + '</div><div class="order-date">' + date + '</div></div>' +
+                        '<div style="text-align:center;"><span class="order-status ' + statusClass + '">' + statusText + '</span></div>' +
+                        '<div class="order-total">' + (o.totals ? formatKz(o.totals.total) : '—') + '</div>' +
+                    '</div>' +
+                    (itemsText ? '<div class="order-items">' + itemsText + '</div>' : '');
+                }).join('');
+
+            } catch (error) {
+                listEl.innerHTML = '<div class="empty-orders"><p>Erro ao carregar encomendas</p></div>';
+            }
+        }
+
+        // Editar campo
+        function startEdit(field, currentValue) {
+            currentEditField = field;
+            var el = document.getElementById('display' + field);
+            var value = currentValue === 'Não definido' ? '' : currentValue;
+            el.innerHTML = '<input type="text" class="edit-input" id="edit-' + field + '" value="' + value + '" onkeydown="if(event.key===\'Enter\')saveEdit(\'' + field + '\');if(event.key===\'Escape\')cancelEdit();">';
+            el.querySelector('input').focus();
+        }
+
+        function saveEdit(field) {
+            var input = document.getElementById('edit-' + field);
+            var value = input.value.trim();
+
+            if (field === 'Phone' && value && !/^[+\d\s()-]{9,}$/.test(value.replace(/\s/g, ''))) {
+                input.style.borderColor = '#ff6b6b';
+                return;
+            }
+
+            AuthService.updateProfile(
+                field === 'Name' ? value : null,
+                field === 'Phone' ? value.replace(/\s/g, '') : null
+            ).then(function(result) {
+                cancelEdit();
+                if (result.success) {
+                    document.getElementById('display' + field).textContent = field === 'Phone' ? formatPhone(value) : value;
+                    document.getElementById('display' + field).classList.remove('not-set');
+                    showAccountToast('Perfil atualizado');
+                }
+            });
+        }
+
+        function cancelEdit() {
+            if (currentEditField) {
+                // Recarregar os dados do utilizador
+                loadAccount();
+                currentEditField = null;
+            }
+        }
+
+        function formatPhone(num) {
+            var cleaned = num.replace(/\s/g, '');
+            if (cleaned.length === 9) {
+                return cleaned.substring(0, 3) + ' ' + cleaned.substring(3, 5) + ' ' + cleaned.substring(5);
+            }
+            return num;
+        }
+
+        function showAccountToast(msg) {
+            var toast = document.createElement('div');
+            toast.style.cssText = 'position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:#2C2C2C2;color:white;padding:0.75rem 1.5rem;border-radius:10px;font-size:0.9rem;z-index:9999;opacity:0;transition:opacity 0.3s;font-family:DM Sans,sans-serif;';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            requestAnimationFrame(function() { toast.style.opacity = '1'; });
+            setTimeout(function() {
+                toast.style.opacity = '0';
+                setTimeout(function() { toast.remove(); }, 300);
+            }, 2500);
+        }
+
+        async function handleLogout() {
+            if (!confirm('Tens a certeza que queres sair?')) return;
+            await AuthService.logout();
+            window.location.href = 'index.html';
+        }
+
+        // Inicializar — espera pela confirmação assíncrona da sessão do
+        // Firebase antes de decidir se mostra a conta ou redireciona para
+        // login. Isto evita expulsar clientes com sessão válida ao
+        // atualizar a página ou entrar diretamente em account.html.
+        document.addEventListener('DOMContentLoaded', function() {
+            auth.onAuthStateChanged(function(user) {
+                if (!user) {
+                    window.location.href = 'auth.html?from=account.html';
+                    return;
+                }
+                loadAccount();
+            });
+        });
+
+        function formatKz(num) {
+            if (typeof num !== 'number') return num || '-';
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' Kz';
+        }
+    </script>
+        <script src="shared-ux.js"></script>
+    <script>
+        // Inicializar UX quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            SharedUX.initImageFallbacks();
+        });
+    </script>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            SharedUX.renderBreadcrumbs([
+                { label: 'Início', url: 'index.html' },
+                { label: 'Minha Conta', isCurrent: true }
+            ]);
+        });
+    </script>
+    <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("./sw.js");}</script>
+</body>
+</html>
