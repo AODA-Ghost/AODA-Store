@@ -6,171 +6,76 @@ Loja online (e-commerce) estática em HTML/CSS/JS puro, com backend em Firebase
 
 ---
 
-## 1. Estado atual do projeto
+## Objetivo deste README
 
-**Esta é a 4ª ronda de trabalho no projeto.** As 3 primeiras rondas foram de
-**correção de bugs** (sintaxe, referências quebradas, erros de runtime —
-secção 2). Esta 4ª ronda foi de **melhorias funcionais**: liguei partes do
-site que existiam mas não estavam realmente conectadas entre si (secção 2b).
+Este README explica exatamente o que é necessário para levar o projeto para
+produção.
 
-**Depois desta ronda: o código está limpo e funcionalmente completo.**
-Sintaxe válida em 100% dos ficheiros JS, zero erros de runtime nas 14
-páginas testadas num browser real (os únicos "erros" que restam no meu
-ambiente de teste são o SDK do Firebase e o Tailwind CDN, que a minha
-sandbox de testes bloqueia por segurança — no browser real de qualquer
-visitante isso carrega normalmente).
-
-**O que falta para estar "ao vivo" na internet não é código — são as tuas
-credenciais e contas**, que só tu podes criar (não tenho acesso a elas):
-
-1. Criar um projeto Firebase real e colar as credenciais em `firebase-config.js`
-2. Publicar as `firestore.rules`
-3. Criar contas SendGrid / Stripe / Multicaixa Express e configurar as chaves nas Cloud Functions
-4. Fazer o deploy (Firebase Hosting, Netlify, Vercel, ou outro)
-
-A secção 3 tem o passo-a-passo exato disto. Sem esses passos, o site abre
-mas nada que dependa de dados (login, checkout, e-mails) funciona — porque
-ainda aponta para um projeto Firebase de exemplo.
+Inclui:
+- o que já está pronto
+- o que falta configurar
+- como criar o primeiro admin
+- como deployar o frontend e o backend
+- checklist final para produção
 
 ---
 
-## 2. Bugs encontrados e corrigidos nesta ronda (3ª)
+## 1. O que já está pronto
 
-### 🔴 Crítico — quebrava TODAS as 14 páginas do site
+O código do projeto já tem as principais funcionalidades implementadas:
+- autenticação de clientes e administradores via Firebase Auth
+- separação de roles `admin` / `customer`
+- gestão de produtos, categorias, marcas, banners e cupões no painel admin
+- carrinho, checkout e encomendas com Firestore
+- integração com Multicaixa Express e Stripe
+- envio de e-mail transacional via SendGrid
+- regras de segurança Firestore para acesso adequado
+- UI responsiva para desktop e mobile
 
-| Ficheiro(s) | Problema | Correção |
-|---|---|---|
-| Todos os `.html` | Todas as páginas carregavam `<script src="build-min/bundle.min.js">` — um ficheiro que só existe **depois** de correres `build.sh` manualmente, e que não vem incluído no projeto. Resultado: `main.js` (a classe `AodaStoreApp` inteira — carrinho, filtros, catálogo, tudo) **nunca era carregado em lugar nenhum**. O site não funcionava em nenhuma página, independentemente do Firebase estar ou não configurado. | Todas as 14 páginas passaram a carregar `main.js` diretamente (o ficheiro de desenvolvimento, não minificado). A minificação com `build.sh` continua disponível como passo opcional antes de publicar (secção 3.7). |
-
-### 🟠 Graves
-
-| Ficheiro | Problema | Correção |
-|---|---|---|
-| `main.js` (`initAuthUI`) | Chamava `AuthService.onAuthStateChanged(...)` sem verificar se `AuthService` existia. Só 3 das 14 páginas carregam `auth-service.js` — nas outras 11, isto lançava um erro não tratado que impedia `window.app` de ser criado, quebrando a app inteira nessas páginas (mesmo padrão do bug do `EmailService` já corrigido antes). | Adicionada verificação `typeof AuthService === 'undefined'` no início da função, com saída segura — mesmo princípio defensivo já aplicado ao `EmailService`. |
-| `checkout.html` | Um bloco de código órfão, sobrado de uma reescrita anterior da função `processOrder()`, ficou fora de qualquer função, referenciando variáveis (`orderData`, `btn`) que não existiam nesse escopo. Lançava `ReferenceError` assim que a página carregava, o que impedia o listener de scroll da navbar (efeito de transparência) de ser registado. | Bloco de código morto removido. |
-| `contact.html` | `main.js` estava a ser carregado **duas vezes** (uma no `<head>`, outra perto do rodapé) — a segunda execução lançava `SyntaxError: Identifier 'AodaStoreApp' has already been declared`, deixando o comportamento da página dependente de qual das duas cópias corria primeiro. | Removida a segunda ocorrência duplicada. |
-
-### 🟡 Menor
-
-| Ficheiro | Problema | Correção |
-|---|---|---|
-| `auth.html` | O ícone SVG de "mostrar/ocultar password" tinha um atributo `path d="..."` com coordenadas inválidas/corrompidas — o ícone não renderizava corretamente (3 ocorrências: login, registo, e o JS que troca o ícone ao clicar). | Substituído por um path SVG de "olho" válido. |
-
-> Estes bugs não tinham sido apanhados nas rondas anteriores porque essa
-> análise era feita por leitura de código (grep/inspeção manual). Nesta
-> ronda usei também `node --check` em todos os ficheiros e scripts inline,
-> e testei as 14 páginas num Chromium real headless — daí ter aparecido
-> muito mais coisa desta vez, incluindo o bug que quebrava o site inteiro.
-
-### Resumo de todas as 3 rondas de bugs (histórico completo)
-
-Ao todo, desde a primeira análise, foram encontrados e corrigidos **14
-bugs**: 3 erros de sintaxe fatais (que impediam ficheiros inteiros de
-carregar), 3 bugs de "serviço não definido" que quebravam a app inteira em
-certas páginas, 1 falha de segurança (auto-promoção a admin), 1 bug
-financeiro (cálculo de valor no Stripe), 1 referência quebrada a
-`build-min/bundle.min.js` em todas as páginas, código morto, imagens
-partidas e um ícone SVG malformado. Ver a tabela acima para os 5 mais
-recentes; os 9 anteriores estão documentados no histórico da conversa.
+> O que ainda falta para estar em produção não é código: são as configurações
+de ambiente, serviços externos e credenciais corretas.
 
 ---
 
-## 2b. Melhorias funcionais implementadas (4ª ronda)
+## 2. O que é necessário para produção
 
-As 3 primeiras rondas garantiram que o código **corria sem erros**. Mas
-correr sem erros não é o mesmo que **funcionar como esperado**: o admin
-geria produtos, cupões, stock e avaliações — mas a loja nunca lia nada
-disso. Esta ronda ligou essas pontas.
+### 2.1 Pré-requisitos
 
-### 🔴 Login duplicado unificado
-Existiam **duas telas de login** independentes: `auth.html` (clientes) e um
-formulário próprio dentro de `admin.html`. Agora só há uma — `auth.html`.
-Se abrires `admin.html` sem sessão de administrador, és redirecionado
-automaticamente para `auth.html?redirect=admin` com um aviso contextual.
-Depois do login, `AuthService.loginAndRedirect()` já decide para onde
-mandar cada utilizador consoante o `role`.
+- Conta Google e projeto Firebase
+- Conta SendGrid
+- Conta Stripe (se planeares usar Stripe)
+- Acesso às credenciais Multicaixa Express
+- Node.js 18+
+- npm
+- `firebase-tools` instalado globalmente
 
-### 🔴 Sessão do cliente perdida em `account.html`
-Bug real encontrado depois desta ronda: `account.html` verificava se havia
-sessão usando `AuthService.getCurrentUser()`, que lê `auth.currentUser` de
-forma **síncrona**. O Firebase demora um instante a confirmar uma sessão
-guardada ao carregar a página — nesse instante `auth.currentUser` ainda
-está vazio. Resultado: **um cliente com sessão válida que atualizasse a
-página, ou entrasse diretamente em `account.html` (não logo a seguir ao
-login), era incorretamente expulso para `auth.html`.** `main.js` já fazia
-isto de forma correta (`AuthService.onAuthStateChanged`, assíncrono) para o
-link "Conta" da navbar — só o `account.html` tinha a sua própria lógica
-duplicada e incorreta. Corrigido: agora `account.html` espera a
-confirmação assíncrona antes de decidir mostrar a conta ou redirecionar.
+### 2.2 Serviços necessários
 
-### 🔴 Catálogo da loja ligado ao Firestore
-`main.js` tinha os produtos **hardcoded** num array; o admin gerava
-produtos numa coleção `products` no Firestore que a loja nunca lia. Agora
-`loadProductsFromFirestore()` busca os produtos ativos ao carregar a
-página e substitui o catálogo de reserva automaticamente. Se o Firestore
-falhar ou estiver vazio, a loja continua a funcionar com o catálogo
-hardcoded como rede de segurança. Também corrigi todas as comparações e
-`onclick` que assumiam IDs numéricos (o Firestore usa IDs em string).
-
-### 🟠 Cupões reais no checkout
-`cart.html` validava códigos promocionais contra uma lista fixa dentro do
-próprio ficheiro (`AODA10`, `FRETE`, `AODA20`), completamente desligada dos
-cupões geridos em `admin.html`. Agora `AodaBackend.validateCoupon(code)`
-consulta o Firestore (tipo percentagem/valor fixo, validade, limite de
-usos) e `incrementCouponUsage()` contabiliza cada uso depois de uma
-encomenda confirmada.
-
-### 🟠 Controlo de stock real
-Não havia nenhuma verificação de stock no carrinho/checkout — dava para
-comprar quantidade infinita de um produto esgotado. Agora:
-- `AodaBackend.saveOrder()` corre uma transação que verifica e reserva
-  stock antes de confirmar a encomenda, rejeitando com uma mensagem clara
-  se não houver unidades suficientes.
-- A loja mostra um selo "Esgotado" e desativa a compra quando `stock <= 0`.
-- **Nota de segurança:** por omissão, `firestore.rules` só deixa o admin
-  escrever em `products`. Para o checkout (cliente comum) poder decrementar
-  stock sem dar acesso total de escrita, adicionei uma exceção **restrita**
-  à regra: só permite alterar o campo `stock`, só para um valor menor que o
-  atual, nunca outros campos. O mesmo foi feito para `usedCount` em
-  `coupons` (só permite incrementar em exatamente 1). Vale a pena revalidar
-  estas regras no simulador da consola do Firebase antes de publicar.
-
-### 🟡 Avaliações de produto
-O admin já moderava avaliações (aprovar/eliminar), mas não existia nenhuma
-forma de um cliente **criar** uma avaliação, nem de a loja **exibir** as
-aprovadas. Adicionei:
-- Formulário de avaliação (estrelas + comentário) no modal de produto em
-  `products.html`, visível só para utilizadores autenticados.
-- Lista de avaliações aprovadas + média, por produto.
-- As avaliações ficam pendentes (`approved: false`) até seres tu a aprovar
-  em `admin.html` → separador Avaliações.
-- Foi preciso adicionar os SDKs `firebase-auth-compat.js` e
-  `auth-service.js` a `products.html` (antes só carregava Firestore, sem
-  autenticação).
+- Firebase Authentication
+- Firebase Firestore
+- Firebase Functions
+- Firebase Hosting (ou outro host estático)
+- SendGrid
+- Multicaixa Express
+- Stripe (opcional)
 
 ---
 
-## 3. Como pôr o site a funcionar (passo a passo)
+## 3. Passos para colocar em produção
 
-### 3.1 Testar localmente (sem Firebase, só para ver o layout)
+### 3.1 Criar e configurar o projeto Firebase
 
-Como é HTML/CSS/JS puro, basta servir os ficheiros estaticamente:
+1. Acede a https://console.firebase.google.com e cria um projeto.
+2. Ativa em Firebase:
+   - Authentication → Email/Password
+   - Firestore Database
+   - Functions
+   - Hosting (se for o host escolhido)
+3. Em **Project Settings → Web Apps**, regista uma nova Web App.
+4. Copia as credenciais da Web App.
+5. Atualiza `firebase-config.js` com os valores reais.
 
-```bash
-cd AODA
-python3 -m http.server 8000
-# abrir http://localhost:8000
-```
-
-Vais ver o site, mas login, carrinho na nuvem, checkout e admin não vão
-funcionar (dependem do Firebase configurado — próximos passos).
-
-### 3.2 Criar e ligar o projeto Firebase
-
-1. Vai a [console.firebase.google.com](https://console.firebase.google.com) → **Criar projeto**
-2. No projeto, ativa: **Authentication** (método Email/Password), **Firestore Database** e **Functions**
-3. Em **Project Settings → Web Apps**, regista uma nova Web App e copia o objeto de configuração
-4. Abre `firebase-config.js` e substitui os valores `"SEU_..."` pelos reais:
+Exemplo de configuração:
 
 ```js
 var firebaseConfig = {
@@ -183,151 +88,154 @@ var firebaseConfig = {
 };
 ```
 
-Estes valores **não são secretos** — identificam o projeto publicamente, e é
-normal (e seguro) tê-los visíveis no código do browser. A segurança real é
-garantida pelas regras do Firestore, não por esconder isto.
+> Estes valores NÃO são secretos; é normal que fiquem expostos no browser.
 
-### 3.3 Publicar as regras de segurança do Firestore
+### 3.2 Publicar as regras do Firestore
+
+O ficheiro `firestore.rules` já contém as regras necessárias para proteger as
+datasets e permitir os usos esperados.
+
+Executa:
 
 ```bash
 npm install -g firebase-tools
 firebase login
-firebase init firestore   # aponta para o projeto que criaste
+firebase init firestore
 firebase deploy --only firestore:rules
 ```
 
-> **Nota (4ª ronda):** as regras de `products` e `coupons` têm agora
-> exceções restritas para o checkout poder decrementar stock e contabilizar
-> uso de cupões sem precisar de privilégios de admin (ver secção 2b). Antes
-> de publicar, recomendo simular estas regras na consola do Firebase
-> (Firestore → Regras → Simulador) com um utilizador comum, confirmando que
-> só é possível alterar exatamente o campo esperado.
+### 3.3 Configurar e deployar Cloud Functions
 
-### 3.4 Configurar as Cloud Functions (segredos)
-
-As Cloud Functions precisam de chaves que **nunca** devem ir para o código do
-browser. Configura-as como variáveis de ambiente do próprio Firebase:
+No diretório `functions`:
 
 ```bash
 cd functions
 npm install
-
-firebase functions:secrets:set SENDGRID_API_KEY
-firebase functions:secrets:set STRIPE_SECRET_KEY
-firebase functions:secrets:set STRIPE_WEBHOOK_SECRET
-firebase functions:secrets:set MULTICAIXA_TOKEN
-firebase functions:secrets:set MULTICAIXA_HMAC_KEY
 ```
 
-(vais precisar de contas em [SendGrid](https://sendgrid.com), [Stripe](https://stripe.com)
-e no fornecedor Multicaixa Express para obteres estas chaves)
+Definir os segredos (secrets):
 
-### 3.5 Deploy
+```bash
+firebase functions:secrets:set SENDGRID_API_KEY="SG.xxxxx"
+firebase functions:secrets:set MULTICAIXA_TOKEN="xxxx"
+firebase functions:secrets:set MULTICAIXA_ENTITY="00100"
+firebase functions:secrets:set MULTICAIXA_HMAC_KEY="xxxx"
+firebase functions:secrets:set STRIPE_SECRET_KEY="sk_test_xxx"
+firebase functions:secrets:set STRIPE_AOA_TO_USD_RATE="0.0012"
+firebase functions:secrets:set STRIPE_WEBHOOK_SECRET="whsec_xxx"
+```
+
+> Se não usares Stripe, basta não definir `STRIPE_SECRET_KEY` e
+> `STRIPE_WEBHOOK_SECRET`.
+
+Faz o deploy das functions:
 
 ```bash
 firebase deploy --only functions
-firebase deploy --only hosting     # se usares Firebase Hosting para o frontend
 ```
 
-Ou publica os ficheiros HTML/CSS/JS estáticos em qualquer hosting (Netlify,
-Vercel, GitHub Pages, cPanel, etc.) — não precisam de servidor Node, são
-ficheiros estáticos normais.
+### 3.4 Criar o primeiro administrador
 
-### 3.6 Tornar-te admin
+O ficheiro `setup-admin.js` serve para criar a primeira conta de admin.
 
-Depois de criares a tua conta na página `auth.html`, tens duas opções:
+Passos:
+1. Configura `firebase-config.js` com as credenciais reais do projeto.
+2. Abre `setup-admin.html` no browser local.
+3. Preenche o nome, e-mail e password.
+4. Clica em "Criar Administrador".
 
-- **Manual (recomendado para produção):** vai à consola do Firebase →
-  Firestore → coleção `users` → o teu documento → adiciona manualmente o
-  campo `role` com o valor `"admin"`. É proposital que isto só possa ser
-  feito pela consola (ver bug de segurança #4 acima).
-- **Via `setup-admin.html`:** ferramenta incluída no projeto para promover
-  a primeira conta a admin sem abrir a consola do Firebase. Usa-a só na
-  configuração inicial e considera removê-la (ou restringir o acesso) depois
-  de teres pelo menos um admin criado, para não ficar acessível
-  publicamente.
+> Nota: para criar o primeiro admin, pode ser necessário ajustar
+> temporariamente `firestore.rules` para permitir criar o documento `users`
+> com `role: 'admin'`. Depois de criar o admin, restaura a regra e faz deploy
+> novamente.
 
-### 3.7 (Opcional) Minificar para produção
+### 3.5 Deploy do frontend
+
+Podes usar Firebase Hosting ou qualquer outro serviço de hosting estático.
+
+Se usares Firebase Hosting:
 
 ```bash
-npm install -g clean-css-cli terser
-chmod +x build.sh
-./build.sh
+firebase init hosting
+firebase deploy --only hosting
 ```
 
-Gera uma versão minificada em `build-min/`. Depois troca manualmente as tags
-`<script src="main.js">` / `<link href="shared-ux.css">` pelos ficheiros
-minificados nos HTMLs (o próprio script explica os passos no final).
+Se usares outro host estático, faz o upload dos ficheiros do projeto (HTML,
+CSS, JS, `firebase-config.js`, etc.) para o serviço.
 
-### 3.8 Correr os testes
+### 3.6 Testes de produção
 
-```bash
-node tests/tests.js
-```
+Depois do deploy, testa os seguintes fluxos:
+- registo e login de cliente em `auth.html`
+- login admin via `auth.html?redirect=admin` ou `admin.html`
+- criação/update de produtos no admin
+- checkout completo
+- pagamento Multicaixa Express
+- pagamento Stripe (se configurado)
+- envio de e-mail transacional
+- criação e aprovação de avaliações
+- visualização mobile/tablet
 
 ---
 
-## 4. Estrutura do projeto
+## 4. Checklist final para produção
 
-```
-AODA/
-├── index.html, products.html, cart.html, checkout.html, ...   → páginas
-├── main.js              → app principal (catálogo, carrinho, filtros, UI)
-├── shared-ux.js/.css     → componentes partilhados (breadcrumbs, header, etc.)
-├── firebase-config.js    → credenciais do Firebase (preencher, secção 3.2)
-├── auth-service.js       → login/registo/perfil (Firebase Auth)
-├── app-backend.js        → leitura/escrita no Firestore (produtos, encomendas)
-├── payment-service.js    → chama as Cloud Functions de pagamento
-├── email-service.js      → templates de e-mail (envio real é via Cloud Function)
-├── sw.js                 → service worker (cache offline)
-├── firestore.rules       → regras de segurança da base de dados
-├── functions/
-│   ├── index.js          → Cloud Functions (Multicaixa, Stripe, e-mails, limpeza)
-│   └── package.json
-├── tests/tests.js        → testes unitários básicos (sem dependências)
-├── build.sh              → script de minificação para produção
-└── resources/            → imagens
-```
+- [ ] `firebase-config.js` atualizado com credenciais reais
+- [ ] `firestore.rules` publicado
+- [ ] Cloud Functions deployadas
+- [ ] segredos configurados no Firebase Functions
+- [ ] primeiro admin criado
+- [ ] frontend publicado em hosting
+- [ ] login cliente e admin testados
+- [ ] checkout e pagamentos testados
+- [ ] envios de e-mail verificados
+- [ ] regras Firestore simuladas/testadas
+- [ ] responsive em mobile verificado
 
 ---
 
-## 5. Recomendações e opções futuras
+## 5. Organização do código
 
-### Curto prazo (antes de lançar)
-- **Adotar Git** (`git init`, commits regulares). É a forma mais eficaz de
-  evitar que bugs já corrigidos voltem a aparecer, como aconteceu várias
-  vezes nesta conversa.
-- Substituir as imagens de produto atuais (que parecem ser de sneakers/lã)
-  pelas fotos reais da AODA, já que os textos e preços já são de t-shirts.
-- Testar o fluxo de checkout ponta-a-ponta com o Stripe em modo teste, e o
-  Multicaixa Express em sandbox, antes de aceitar pagamentos reais —
-  incluindo o novo fluxo de reserva de stock (secção 2b).
-- Rever a taxa de câmbio fixa AOA→USD usada no Stripe (`0.0012` por omissão)
-  — está hardcoded como fallback; vale a pena atualizá-la periodicamente ou
-  ligar a uma API de câmbio.
-- Simular as novas exceções em `firestore.rules` (stock e `usedCount`) no
-  simulador da consola do Firebase antes de publicar (ver nota na secção 3.3).
+- `index.html`, `products.html`, `cart.html`, `checkout.html`, `auth.html`, `admin.html`
+  → páginas do site
+- `main.js`, `admin-app.js`, `setup-admin.js`, `payment-service.js`, `app-backend.js`,
+  `auth-service.js`, `email-service.js` → lógica do frontend
+- `functions/index.js` → backend de pagamentos, webhooks e e-mails
+- `firebase-config.js` → configuração Firebase do frontend
+- `firestore.rules` → regras de segurança do Firestore
 
-### Médio prazo
-- **CI simples**: um GitHub Action que corre `node --check` em todos os `.js`
-  e `node tests/tests.js` a cada push, para apanhar erros de sintaxe
-  automaticamente antes de irem para produção.
-- E-mail automático ao cliente quando o admin muda o estado de uma
-  encomenda (hoje o SendGrid só é chamado no momento do checkout; mudar o
-  estado depois, em `admin.html`, não notifica o cliente).
-- Adicionar paginação/lazy-loading de imagens em `products.html` se o
-  catálogo crescer.
-- Mostrar a avaliação média do produto também no cartão da grelha
-  (`products-grid`), não só dentro do modal — ajuda na decisão de compra
-  sem precisar de abrir cada produto.
+---
 
-### Longo prazo
-- Avaliar migrar de HTML+JS “vanilla” para um framework (Next.js, Astro, ou
-  similar) se o projeto continuar a crescer — facilita reaproveitar
-  componentes entre páginas em vez de duplicar HTML em cada ficheiro.
-- Programa de fidelização mais avançado (cupões automáticos por
-  aniversário, primeira compra, etc.) — a base de cupões já existe.
-- App mobile ou PWA instalável — o `sw.js` já dá a base de cache offline;
-  falta o manifest.json e ícones para tornar o site instalável como app.
-- Analytics (Google Analytics ou Firebase Analytics) para perceber taxa de
-  abandono de carrinho e conversão no checkout.
+## 6. Observações importantes
+
+- As credenciais de Firebase do browser são públicas por natureza.
+- As chaves de `firebase functions:secrets` devem ficar seguras.
+- A segurança real está em `firestore.rules`.
+- Se usares Multicaixa Express e Stripe, confirma os webhooks no painel de cada
+  serviço.
+- Stripe só funciona com USD no código atual; o valor AOA é convertido via taxa.
+
+---
+
+## 7. Perguntas frequentes rápidas
+
+### O site já está pronto para produção?
+O código está pronto, mas falta configurar o ambiente de produção e os
+serviços externos.
+
+### O admin já está inserido?
+O sistema suporta a criação do primeiro admin via `setup-admin.html`, mas
+não há forma de eu confirmar se já existe um admin no teu Firebase sem
+aceder ao teu projeto.
+
+### Preciso alterar código para deployar?
+Não, apenas as configurações externas e os serviços necessários.
+
+### Quais serviços externos são obrigatórios?
+- Firebase Auth
+- Firestore
+- Cloud Functions
+- SendGrid
+- Multicaixa Express
+
+Stripe é opcional, mas recomendado se quiseres aceitar pagamentos via cartão.
