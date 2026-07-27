@@ -1053,6 +1053,10 @@
                 return PaymentService.processPayment(orderData);
             })
             .then(function(paymentResult) {
+                if (paymentResult && paymentResult.error) {
+                    throw new Error(paymentResult.error);
+                }
+
                 // Enviar e-mails de confirmação
                 EmailService.sendOrderEmails(orderData);
 

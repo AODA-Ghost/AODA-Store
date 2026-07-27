@@ -24,7 +24,7 @@ var PaymentService = {
             throw new Error('Sem URL de checkout');
         } catch (error) {
             console.error('[Stripe] Erro:', error);
-            return { error: error.message };
+            throw error;
         }
     },
 
@@ -58,14 +58,10 @@ var PaymentService = {
 
             // Verificar se é erro de configuração
             if (error.message && error.message.indexOf('não configurado') !== -1) {
-                return {
-                    success: false,
-                    error: 'not_configured',
-                    message: 'Multicaixa Express ainda não está configurado. Usa outro método de pagamento ou contacta o suporte.'
-                };
+                throw new Error('Multicaixa Express ainda não está configurado. Usa outro método de pagamento ou contacta o suporte.');
             }
 
-            return { success: false, error: error.message };
+            throw error;
         }
     },
 
@@ -152,7 +148,7 @@ var PaymentService = {
             case 'stripe':
                 return await this.createStripeSession(orderData);
             default:
-                return { error: 'Método não reconhecido' };
+                throw new Error('Método de pagamento não reconhecido');
         }
     },
 

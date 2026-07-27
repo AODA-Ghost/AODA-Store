@@ -45,6 +45,7 @@ var AodaBackend = {
 
         return stockCheck.then(function() {
             return db.collection('orders').add(Object.assign({}, orderData, {
+                id: orderData.id || null,
                 status: 'pending',
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             })).then(function(docRef) {

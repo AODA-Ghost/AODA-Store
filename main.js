@@ -808,6 +808,7 @@ class AodaStoreApp {
         renderCart() {
         var container = document.querySelector('.cart-items');
         var totalsContainer = document.querySelector('.cart-totals');
+        var checkoutBtn = document.getElementById('checkoutBtn');
         if (!container) return;
         var self = this;
 
@@ -826,7 +827,6 @@ class AodaStoreApp {
                 '</div>';
 
             if (totalsContainer) totalsContainer.innerHTML = '';
-            var checkoutBtn = document.getElementById('checkoutBtn');
             if (checkoutBtn) checkoutBtn.disabled = true;
             return;
         }

@@ -318,14 +318,45 @@ var AdminApp = {
     },
 
     syncProducts: function() {
-        if (!window.app || !app.products) { showToast('Produtos do site não encontrados', 'error'); return; }
-        var count = 0;
-        app.products.forEach(function(p) {
-            AodaBackend.updateProduct('product-' + p.id, Object.assign({}, p, { active: true }));
-            count++;
+        var siteProducts = Array.isArray(window.app && window.app.products) ? window.app.products : [];
+        if (siteProducts.length === 0) {
+            showToast('Produtos do site não disponíveis para sincronização', 'error');
+            return;
+        }
+
+        AodaBackend.getProducts().then(function(existingProducts) {
+            var existingMap = {};
+            existingProducts.forEach(function(p) {
+                if (p.sku) existingMap['sku:' + p.sku] = p;
+                existingMap['name:' + (p.name || '').toLowerCase()] = p;
+            });
+
+            var promises = [];
+            var count = 0;
+
+            siteProducts.forEach(function(p) {
+                if (!p || !p.name) return;
+                var data = Object.assign({}, p, {
+                    active: true,
+                    stock: (typeof p.stock === 'number' ? p.stock : 0)
+                });
+
+                var matched = (p.sku && existingMap['sku:' + p.sku]) || existingMap['name:' + (p.name || '').toLowerCase()];
+                if (matched && matched.id) {
+                    promises.push(AodaBackend.updateProduct(matched.id, data));
+                } else {
+                    promises.push(AodaBackend.addProduct(data));
+                }
+                count++;
+            });
+
+            return Promise.all(promises).then(function() {
+                showToast(count + ' produtos sincronizados', 'success');
+                AdminApp.loadProducts();
+            });
+        }).catch(function() {
+            showToast('Erro ao sincronizar produtos', 'error');
         });
-        showToast(count + ' produtos sincronizados', 'success');
-        this.loadProducts();
     },
 
     // ==========================================
