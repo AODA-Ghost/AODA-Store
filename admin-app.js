@@ -614,16 +614,41 @@ var AdminApp = {
         });
     },
 
+    // Sobe a imagem para o Firebase Storage (mesmo padrão de
+    // addImageToProduct), guardando só o URL no Firestore, em vez de gravar
+    // a imagem inteira em base64 dentro do documento do banner.
     handleBannerImage: function(input) {
         var self = this;
         if (!input.files || !input.files[0]) return;
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            self._bannerImage = e.target.result;
-            document.getElementById('bannerPreview').src = e.target.result;
-            document.getElementById('bannerPreview').style.display = 'block';
-        };
-        reader.readAsDataURL(input.files[0]);
+        var file = input.files[0];
+        if (file.size > 2 * 1024 * 1024) { showToast('Imagem demasiado grande (máx 2MB)', 'error'); return; }
+
+        // Tentar Firebase Storage, se disponível
+        if (typeof storage !== 'undefined') {
+            var ref = storage.ref('banners/' + Date.now() + '_' + file.name);
+            var task = ref.put(file);
+            showToast('A fazer upload...', 'info');
+            task.on('state_changed', null, function(err) {
+                showToast('Erro no upload: ' + err.message, 'error');
+            }, function() {
+                task.snapshot.ref.getDownloadURL().then(function(url) {
+                    self._bannerImage = url;
+                    document.getElementById('bannerPreview').src = url;
+                    document.getElementById('bannerPreview').style.display = 'block';
+                    showToast('Imagem carregada', 'success');
+                });
+            });
+        } else {
+            // Fallback: base64 (só se o Storage não estiver configurado)
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                self._bannerImage = e.target.result;
+                document.getElementById('bannerPreview').src = e.target.result;
+                document.getElementById('bannerPreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+        input.value = '';
     },
 
     deleteBanner: function(id) {
